@@ -1,0 +1,10 @@
+Type error: Module '"@prisma/client"' has no exported member 'EstadoPresupuesto'.
+  1 | import { NextResponse } from 'next/server';
+  2 | import prisma from '@/lib/prisma';
+> 3 | import { EstadoPresupuesto } from '@prisma/client';
+    |          ^
+  4 |
+  5 | export async function GET(
+  6 |   request: Request,
+Next.js build worker exited with code: 1 and signal: null
+Error: Command "npm run build" exited with 1
