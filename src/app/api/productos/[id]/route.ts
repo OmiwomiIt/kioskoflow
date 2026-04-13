@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { TipoProducto } from '@prisma/client';
 
 export async function GET(
   request: Request,
@@ -27,7 +26,7 @@ export async function PUT(
     data: {
       nombre: data.nombre,
       descripcion: data.descripcion || null,
-      tipo: data.tipo as TipoProducto,
+      tipo: data.tipo,
       presentacion: data.presentacion,
       precio: parseFloat(data.precio),
       activo: data.activo,

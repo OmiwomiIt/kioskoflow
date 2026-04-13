@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { EstadoPresupuesto } from '@prisma/client';
 
 async function generateNumero() {
   const last = await prisma.presupuesto.findFirst({
@@ -16,7 +15,7 @@ export async function GET(request: Request) {
   const clienteId = searchParams.get('clienteId');
   
   const where: any = {};
-  if (estado) where.estado = estado as EstadoPresupuesto;
+  if (estado) where.estado = estado;
   if (clienteId) where.clienteId = parseInt(clienteId);
 
   const presupuestos = await prisma.presupuesto.findMany({
@@ -49,7 +48,7 @@ export async function POST(request: Request) {
       iva: 0,
       total,
       observaciones: data.observaciones || null,
-      estado: data.estado as EstadoPresupuesto || 'BORRADOR',
+      estado: data.estado || 'BORRADOR',
       detalles: {
         create: data.detalles.map((item: any) => ({
           productoId: item.productoId,

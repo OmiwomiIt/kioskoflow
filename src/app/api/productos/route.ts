@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { TipoProducto } from '@prisma/client';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -8,7 +7,7 @@ export async function GET(request: Request) {
   const activo = searchParams.get('activo');
   
   const where: any = {};
-  if (tipo) where.tipo = tipo as TipoProducto;
+  if (tipo) where.tipo = tipo;
   if (activo !== null) where.activo = activo === 'true';
 
   const productos = await prisma.producto.findMany({
@@ -24,7 +23,7 @@ export async function POST(request: Request) {
     data: {
       nombre: data.nombre,
       descripcion: data.descripcion || null,
-      tipo: data.tipo as TipoProducto,
+      tipo: data.tipo,
       presentacion: data.presentacion,
       precio: parseFloat(data.precio),
       activo: true,

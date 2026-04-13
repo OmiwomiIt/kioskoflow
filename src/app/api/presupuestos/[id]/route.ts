@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { EstadoPresupuesto } from '@prisma/client';
 
 export async function GET(
   request: Request,
@@ -40,7 +39,7 @@ export async function PUT(
   }
 
   let updateData: any = {};
-  if (data.estado) updateData.estado = data.estado as EstadoPresupuesto;
+  if (data.estado) updateData.estado = data.estado;
   if (data.observaciones !== undefined) updateData.observaciones = data.observaciones;
 
   if (data.detalles) {
