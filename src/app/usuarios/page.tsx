@@ -55,13 +55,11 @@ export default function UsuariosPage() {
     setError('');
     setSaving(true);
 
-    const res = await fetch('/api/usuarios', {
+    const url = editando ? `/api/usuarios/${editando.id}` : '/api/usuarios';
+    const res = await fetch(url, {
       method: editando ? 'PUT' : 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...form,
-        id: editando?.id,
-      }),
+      body: JSON.stringify(form),
     });
 
     if (res.ok) {
