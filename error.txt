@@ -1,74 +1,80 @@
-10:03:09.580 Running build in Washington, D.C., USA (East) – iad1
-10:03:09.580 Build machine configuration: 2 cores, 8 GB
-10:03:09.691 Cloning github.com/OmiwomiIt/soderia (Branch: main, Commit: f2f742e)
-10:03:09.933 Cloning completed: 241.000ms
-10:03:11.129 Restored build cache from previous deployment (Btmg6iNMFBuaUVrPYQm3H942f1rm)
-10:03:11.310 Running "vercel build"
-10:03:11.908 Vercel CLI 50.43.0
-10:03:12.150 Running "install" command: `npm install`...
-10:03:15.160 npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
-10:03:15.243 npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
-10:03:15.256 npm warn deprecated npmlog@5.0.1: This package is no longer supported.
-10:03:15.263 npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
-10:03:15.284 npm warn deprecated are-we-there-yet@2.0.0: This package is no longer supported.
-10:03:15.294 npm warn deprecated gauge@3.0.2: This package is no longer supported.
-10:03:15.331 npm warn deprecated tar@6.2.1: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
-10:03:19.702 
-10:03:19.703 > soderia@0.1.0 postinstall
-10:03:19.703 > prisma generate
-10:03:19.703 
-10:03:20.657 Loaded Prisma config from prisma.config.ts.
-10:03:20.657 
-10:03:20.716 Prisma schema loaded from prisma/schema.prisma.
-10:03:21.054 
-10:03:21.055 ✔ Generated Prisma Client (v7.7.0) to ./node_modules/@prisma/client in 165ms
-10:03:21.056 
-10:03:21.056 Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
-10:03:21.057 
-10:03:21.057 
-10:03:21.078 
-10:03:21.079 added 47 packages, and audited 587 packages in 9s
-10:03:21.079 
-10:03:21.080 173 packages are looking for funding
-10:03:21.080   run `npm fund` for details
-10:03:21.150 
-10:03:21.151 5 vulnerabilities (3 moderate, 2 high)
-10:03:21.151 
-10:03:21.152 To address issues that do not require attention, run:
-10:03:21.152   npm audit fix
-10:03:21.153 
-10:03:21.153 To address all issues (including breaking changes), run:
-10:03:21.153   npm audit fix --force
-10:03:21.153 
-10:03:21.153 Run `npm audit` for details.
-10:03:21.190 Detected Next.js version: 16.2.3
-10:03:21.190 Running "npx prisma generate && next build"
-10:03:22.177 Loaded Prisma config from prisma.config.ts.
-10:03:22.177 
-10:03:22.203 Prisma schema loaded from prisma/schema.prisma.
-10:03:22.473 
-10:03:22.474 ✔ Generated Prisma Client (v7.7.0) to ./node_modules/@prisma/client in 178ms
-10:03:22.474 
-10:03:22.475 Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
-10:03:22.475 
-10:03:22.475 
-10:03:23.211 ▲ Next.js 16.2.3 (Turbopack)
-10:03:23.212 
-10:03:23.219 ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
-10:03:23.245   Creating an optimized production build ...
-10:03:32.300 ✓ Compiled successfully in 8.7s
-10:03:32.305   Running TypeScript ...
-10:03:36.920 Failed to type check.
-10:03:36.921 
-10:03:36.921 ./src/app/api/auth/route.ts:61:46
-10:03:36.922 Type error: Property 'get' does not exist on type 'Promise<ReadonlyRequestCookies>'.
-10:03:36.922 
-10:03:36.922   [90m59 |[0m [36mexport[0m [36masync[0m [36mfunction[0m [33mGET[0m() {
-10:03:36.922   [90m60 |[0m   [36mconst[0m token = [36mawait[0m jwtVerify(
-10:03:36.922 [31m[1m>[0m [90m61 |[0m     ([36mawait[0m [36mimport[0m([32m'next/headers'[0m)).cookies().get([32m'auth-token'[0m)?.value || [32m''[0m,
-10:03:36.922   [90m   |[0m                                              [31m[1m^[0m
-10:03:36.922   [90m62 |[0m     secret
-10:03:36.922   [90m63 |[0m   ).[36mcatch[0m(() => [36mnull[0m);
-10:03:36.922   [90m64 |[0m
-10:03:36.951 Next.js build worker exited with code: 1 and signal: null
-10:03:36.981 Error: Command "npx prisma generate && next build" exited with 1
+10:21:32.528 Running build in Washington, D.C., USA (East) – iad1
+10:21:32.528 Build machine configuration: 2 cores, 8 GB
+10:21:32.538 Cloning github.com/OmiwomiIt/soderia (Branch: main, Commit: f2f742e)
+10:21:32.539 Skipping build cache, deployment was triggered without cache.
+10:21:32.780 Cloning completed: 241.000ms
+10:21:33.031 Running "vercel build"
+10:21:33.676 Vercel CLI 50.43.0
+10:21:33.943 Running "install" command: `npm install`...
+10:21:37.213 npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+10:21:37.464 npm warn deprecated prebuild-install@7.1.3: No longer maintained. Please contact the author of the relevant native addon; alternatives are available.
+10:21:37.618 npm warn deprecated npmlog@5.0.1: This package is no longer supported.
+10:21:38.062 npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+10:21:38.167 npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+10:21:38.375 npm warn deprecated gauge@3.0.2: This package is no longer supported.
+10:21:38.589 npm warn deprecated tar@6.2.1: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+10:21:38.806 npm warn deprecated are-we-there-yet@2.0.0: This package is no longer supported.
+10:21:55.268 
+10:21:55.268 > soderia@0.1.0 postinstall
+10:21:55.269 > prisma generate
+10:21:55.269 
+10:21:56.167 Loaded Prisma config from prisma.config.ts.
+10:21:56.167 
+10:21:56.343 Prisma schema loaded from prisma/schema.prisma.
+10:21:56.560 
+10:21:56.561 ✔ Generated Prisma Client (v7.7.0) to ./node_modules/@prisma/client in 130ms
+10:21:56.561 
+10:21:56.561 Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+10:21:56.562 
+10:21:56.562 
+10:21:56.594 
+10:21:56.594 added 586 packages, and audited 587 packages in 22s
+10:21:56.595 
+10:21:56.595 173 packages are looking for funding
+10:21:56.595   run `npm fund` for details
+10:21:56.667 
+10:21:56.669 5 vulnerabilities (3 moderate, 2 high)
+10:21:56.669 
+10:21:56.670 To address issues that do not require attention, run:
+10:21:56.670   npm audit fix
+10:21:56.670 
+10:21:56.670 To address all issues (including breaking changes), run:
+10:21:56.670   npm audit fix --force
+10:21:56.671 
+10:21:56.671 Run `npm audit` for details.
+10:21:56.712 Detected Next.js version: 16.2.3
+10:21:56.713 Running "npx prisma generate && next build"
+10:21:57.672 Loaded Prisma config from prisma.config.ts.
+10:21:57.672 
+10:21:57.821 Prisma schema loaded from prisma/schema.prisma.
+10:21:58.005 
+10:21:58.005 ✔ Generated Prisma Client (v7.7.0) to ./node_modules/@prisma/client in 107ms
+10:21:58.006 
+10:21:58.006 Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+10:21:58.006 
+10:21:58.006 
+10:21:58.494 Attention: Next.js now collects completely anonymous telemetry regarding usage.
+10:21:58.495 This information is used to shape Next.js' roadmap and prioritize features.
+10:21:58.495 You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+10:21:58.495 https://nextjs.org/telemetry
+10:21:58.496 
+10:21:58.513 ▲ Next.js 16.2.3 (Turbopack)
+10:21:58.514 
+10:21:58.517 ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+10:21:58.545   Creating an optimized production build ...
+10:22:06.886 ✓ Compiled successfully in 8.0s
+10:22:06.887   Running TypeScript ...
+10:22:11.156 Failed to type check.
+10:22:11.156 
+10:22:11.157 ./src/app/api/auth/route.ts:61:46
+10:22:11.157 Type error: Property 'get' does not exist on type 'Promise<ReadonlyRequestCookies>'.
+10:22:11.157 
+10:22:11.157   [90m59 |[0m [36mexport[0m [36masync[0m [36mfunction[0m [33mGET[0m() {
+10:22:11.157   [90m60 |[0m   [36mconst[0m token = [36mawait[0m jwtVerify(
+10:22:11.157 [31m[1m>[0m [90m61 |[0m     ([36mawait[0m [36mimport[0m([32m'next/headers'[0m)).cookies().get([32m'auth-token'[0m)?.value || [32m''[0m,
+10:22:11.157   [90m   |[0m                                              [31m[1m^[0m
+10:22:11.157   [90m62 |[0m     secret
+10:22:11.157   [90m63 |[0m   ).[36mcatch[0m(() => [36mnull[0m);
+10:22:11.157   [90m64 |[0m
+10:22:11.189 Next.js build worker exited with code: 1 and signal: null
+10:22:11.219 Error: Command "npx prisma generate && next build" exited with 1
