@@ -1,14 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { Modal } from '@/components/ui/modal';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Edit, Trash2, Droplets, Wine } from 'lucide-react';
+import { Plus, Edit, Trash2, Droplets, Wine, Package, Search } from 'lucide-react';
 
 interface Producto {
   id: number;
@@ -23,6 +22,7 @@ interface Producto {
 export default function ProductosPage() {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [filter, setFilter] = useState<'ALL' | 'AGUA' | 'SODA'>('ALL');
+  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
@@ -36,7 +36,9 @@ export default function ProductosPage() {
     });
   }, []);
 
-  const filtered = filter === 'ALL' ? productos : productos.filter(p => p.tipo === filter);
+  const filtered = productos
+    .filter(p => filter === 'ALL' || p.tipo === filter)
+    .filter(p => p.nombre.toLowerCase().includes(search.toLowerCase()));
 
   async function handleSave() {
     if (!form.nombre.trim() || !form.presentacion.trim() || !form.precio) return;
@@ -87,139 +89,159 @@ export default function ProductosPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600"></div>
+      <div className="flex items-center justify-center h-96">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-sky-500"></div>
       </div>
     );
   }
+
+  const filterButtons = [
+    { key: 'ALL', label: 'Todos', icon: Package },
+    { key: 'AGUA', label: 'Agua', icon: Droplets },
+    { key: 'SODA', label: 'Soda', icon: Wine },
+  ];
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Productos</h1>
-          <p className="text-slate-500">Catálogo de productos</p>
+          <p className="text-slate-500">{productos.length} productos en catálogo</p>
         </div>
-        <Button onClick={() => { setEditId(null); setForm({ nombre: '', descripcion: '', tipo: 'AGUA', presentacion: '', precio: '' }); setShowModal(true); }}>
+        <Button onClick={() => { setEditId(null); setForm({ nombre: '', descripcion: '', tipo: 'AGUA', presentacion: '', precio: '' }); setShowModal(true); }} className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700">
           <Plus className="h-4 w-4 mr-2" /> Nuevo Producto
         </Button>
       </div>
 
-      <div className="flex gap-2">
-        <Button variant={filter === 'ALL' ? 'default' : 'outline'} size="sm" onClick={() => setFilter('ALL')}>
-          Todos
-        </Button>
-        <Button variant={filter === 'AGUA' ? 'default' : 'outline'} size="sm" onClick={() => setFilter('AGUA')}>
-          <Droplets className="h-4 w-4 mr-1" /> Agua
-        </Button>
-        <Button variant={filter === 'SODA' ? 'secondary' : 'outline'} size="sm" onClick={() => setFilter('SODA')}>
-          <Wine className="h-4 w-4 mr-1" /> Soda
-        </Button>
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex gap-2">
+          {filterButtons.map(btn => (
+            <Button
+              key={btn.key}
+              variant={filter === btn.key ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setFilter(btn.key as 'ALL' | 'AGUA' | 'SODA')}
+              className={filter === btn.key ? (btn.key === 'AGUA' ? 'bg-sky-500' : btn.key === 'SODA' ? 'bg-orange-500' : 'bg-slate-700') : ''}
+            >
+              <btn.icon className="h-4 w-4 mr-1" />
+              {btn.label}
+            </Button>
+          ))}
+        </div>
+        <div className="flex-1 relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+          <Input
+            placeholder="Buscar productos..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="pl-12 h-10 bg-white"
+          />
+        </div>
       </div>
 
-      <Card>
-        <CardContent className="pt-6">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Producto</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Presentación</TableHead>
-                <TableHead>Precio</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center text-slate-400">
-                    No hay productos
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filtered.map(producto => (
-                  <TableRow key={producto.id}>
-                    <TableCell className="font-medium">
-                      {producto.nombre}
-                      {producto.descripcion && <p className="text-xs text-slate-400">{producto.descripcion}</p>}
-                    </TableCell>
-                    <TableCell>
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${producto.tipo === 'AGUA' ? 'bg-cyan-100 text-cyan-700' : 'bg-orange-100 text-orange-700'}`}>
-                        {producto.tipo}
-                      </span>
-                    </TableCell>
-                    <TableCell>{producto.presentacion}</TableCell>
-                    <TableCell>$AR {producto.precio.toFixed(2)}</TableCell>
-                    <TableCell>
-                      <button onClick={() => handleToggle(producto.id, !producto.activo)} className={`text-xs ${producto.activo ? 'text-green-600' : 'text-red-500'}`}>
-                        {producto.activo ? 'Activo' : 'Inactivo'}
-                      </button>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon" onClick={() => openEdit(producto)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(producto.id)}>
-                          <Trash2 className="h-4 w-4 text-red-500" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      {filtered.length === 0 ? (
+        <Card className="border-0 shadow-lg shadow-slate-200/50">
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+              <Package className="w-8 h-8 text-slate-400" />
+            </div>
+            <p className="text-slate-500 text-lg">No hay productos registrados</p>
+            <Button onClick={() => setShowModal(true)} className="mt-4 bg-emerald-500 hover:bg-emerald-600">
+              <Plus className="h-4 w-4 mr-2" /> Agregar primer producto
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {filtered.map(producto => (
+            <Card key={producto.id} className={`border-0 shadow-lg shadow-slate-200/50 hover:shadow-xl transition-all ${!producto.activo ? 'opacity-60' : ''}`}>
+              <CardContent className="p-5">
+                <div className="flex items-start justify-between">
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${producto.tipo === 'AGUA' ? 'bg-gradient-to-br from-sky-400 to-sky-600' : 'bg-gradient-to-br from-orange-400 to-orange-600'}`}>
+                    {producto.tipo === 'AGUA' ? (
+                      <Droplets className="w-6 h-6 text-white" />
+                    ) : (
+                      <Wine className="w-6 h-6 text-white" />
+                    )}
+                  </div>
+                  <div className="flex gap-1">
+                    <button onClick={() => openEdit(producto)} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                      <Edit className="h-4 w-4 text-slate-400" />
+                    </button>
+                    <button onClick={() => handleDelete(producto.id)} className="p-2 hover:bg-red-50 rounded-lg transition-colors">
+                      <Trash2 className="h-4 w-4 text-red-400" />
+                    </button>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <h3 className="font-semibold text-slate-900 text-lg">{producto.nombre}</h3>
+                  <p className="text-sm text-slate-500">{producto.presentacion}</p>
+                </div>
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="text-2xl font-bold text-slate-900">$AR {producto.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
+                  <button
+                    onClick={() => handleToggle(producto.id, !producto.activo)}
+                    className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${producto.activo ? 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200' : 'bg-red-100 text-red-600 hover:bg-red-200'}`}
+                  >
+                    {producto.activo ? 'Activo' : 'Inactivo'}
+                  </button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       <Modal open={showModal} onClose={() => setShowModal(false)} title={editId ? 'Editar Producto' : 'Nuevo Producto'}>
         <div className="space-y-4">
           <div>
-            <Label>Nombre *</Label>
+            <Label className="text-slate-700">Nombre *</Label>
             <Input
               value={form.nombre}
               onChange={e => setForm({ ...form, nombre: e.target.value })}
               placeholder="Nombre del producto"
+              className="h-12 mt-1"
             />
           </div>
           <div>
-            <Label>Tipo *</Label>
-            <Select value={form.tipo} onChange={e => setForm({ ...form, tipo: e.target.value as 'AGUA' | 'SODA' })}>
+            <Label className="text-slate-700">Tipo *</Label>
+            <Select value={form.tipo} onChange={e => setForm({ ...form, tipo: e.target.value as 'AGUA' | 'SODA' })} className="h-12 mt-1">
               <option value="AGUA">Agua</option>
               <option value="SODA">Soda</option>
             </Select>
           </div>
           <div>
-            <Label>Presentación *</Label>
+            <Label className="text-slate-700">Presentación *</Label>
             <Input
               value={form.presentacion}
               onChange={e => setForm({ ...form, presentacion: e.target.value })}
               placeholder="500ml, 1L, 20L, etc."
+              className="h-12 mt-1"
             />
           </div>
           <div>
-            <Label>Precio *</Label>
+            <Label className="text-slate-700">Precio *</Label>
             <Input
               type="number"
               step="0.01"
               value={form.precio}
               onChange={e => setForm({ ...form, precio: e.target.value })}
               placeholder="0.00"
+              className="h-12 mt-1"
             />
           </div>
           <div>
-            <Label>Descripción</Label>
+            <Label className="text-slate-700">Descripción</Label>
             <Input
               value={form.descripcion}
               onChange={e => setForm({ ...form, descripcion: e.target.value })}
               placeholder="Descripción opcional"
+              className="h-12 mt-1"
             />
           </div>
-          <div className="flex justify-end gap-2 pt-4">
-            <Button variant="outline" onClick={() => setShowModal(false)}>Cancelar</Button>
-            <Button onClick={handleSave} disabled={saving || !form.nombre.trim() || !form.presentacion.trim() || !form.precio}>
+          <div className="flex justify-end gap-3 pt-4">
+            <Button variant="outline" onClick={() => setShowModal(false)} className="h-11">Cancelar</Button>
+            <Button onClick={handleSave} disabled={saving || !form.nombre.trim() || !form.presentacion.trim() || !form.precio} className="h-11 bg-emerald-500 hover:bg-emerald-600">
               {saving ? 'Guardando...' : 'Guardar'}
             </Button>
           </div>
