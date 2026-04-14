@@ -130,7 +130,7 @@ function TopNav() {
       </header>
 
       {sidebarOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        <div className="fixed inset-0 z-50">
           <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
           <div className="absolute left-0 top-0 bottom-0 w-72 animate-in slide-in-from-left">
             <Sidebar onClose={() => setSidebarOpen(false)} />
