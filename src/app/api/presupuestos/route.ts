@@ -39,12 +39,29 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const user = await getUserFromRequest(request);
+  let user;
+  try {
+    user = await getUserFromRequest(request);
+  } catch (err) {
+    console.error('Auth error:', err);
+    return NextResponse.json({ error: 'Error de autenticación' }, { status: 401 });
+  }
+  
   if (!user) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
 
-  const data = await request.json();
+  let data;
+  try {
+    data = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'Datos inválidos' }, { status: 400 });
+  }
+  
+  if (!data.clienteId || !data.detalles || data.detalles.length === 0) {
+    return NextResponse.json({ error: 'Faltan datos' }, { status: 400 });
+  }
+
   const numero = await generateNumero(user.id);
   
   let total = 0;
@@ -52,29 +69,34 @@ export async function POST(request: Request) {
     total += item.cantidad * item.precioUnitario;
   }
 
-  const presupuesto = await prisma.presupuesto.create({
-    data: {
-      numero,
-      clienteId: data.clienteId,
-      usuarioId: user.id,
-      subtotal: total,
-      iva: 0,
-      total,
-      observaciones: data.observaciones || null,
-      estado: data.estado || 'BORRADOR',
-      detalles: {
-        create: data.detalles.map((item: any) => ({
-          productoId: item.productoId,
-          cantidad: item.cantidad,
-          precioUnitario: item.precioUnitario,
-          total: item.cantidad * item.precioUnitario,
-        })),
+  try {
+    const presupuesto = await prisma.presupuesto.create({
+      data: {
+        numero,
+        clienteId: data.clienteId,
+        usuarioId: user.id,
+        subtotal: total,
+        iva: 0,
+        total,
+        observaciones: data.observaciones || null,
+        estado: data.estado || 'BORRADOR',
+        detalles: {
+          create: data.detalles.map((item: any) => ({
+            productoId: item.productoId,
+            cantidad: item.cantidad,
+            precioUnitario: item.precioUnitario,
+            total: item.cantidad * item.precioUnitario,
+          })),
+        },
       },
-    },
-    include: {
-      cliente: true,
-      detalles: { include: { producto: true } },
-    },
-  });
-  return NextResponse.json(presupuesto, { status: 201 });
+      include: {
+        cliente: true,
+        detalles: { include: { producto: true } },
+      },
+    });
+    return NextResponse.json(presupuesto, { status: 201 });
+  } catch (err) {
+    console.error('DB error:', err);
+    return NextResponse.json({ error: 'Error al guardar en base de datos' }, { status: 500 });
+  }
 }
