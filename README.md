@@ -1,14 +1,14 @@
-# Sodería - Sistema de Presupuestos
+# KioskoFlow - Sistema de Gestión
 
-Aplicación web para gestión de presupuestos de distribución de agua embotellada y soda.
+Aplicación web para gestión de kioskos, almacenes y multirubros.
 
 ## Características
 
 - **Autenticación**: Login con JWT, roles ADMIN y USUARIO
 - **Dashboard**: Estadísticas del negocio
 - **Clientes**: CRUD completo
-- **Productos**: Catálogo de agua y soda por presentación
-- **Presupuestos**: Creación, edición, cambio de estado, exportación PDF
+- **Productos**: Catálogo de productos por categoría
+- **Presupuestos**: Creación, edición, exportación PDF
 - **Gestión de Usuarios**: Solo administradores
 - **Diseño Móvil-First**: Bottom navigation en móvil, top tabs en PC
 - **Moneda**: Pesos Argentinos ($AR)
@@ -25,20 +25,20 @@ Aplicación web para gestión de presupuestos de distribución de agua embotella
 
 ## Deploy
 
-- **Producción**: https://soderia.vercel.app/
-- **Repositorio**: https://github.com/OmiwomiIt/soderia
+- **Producción**: https://kioskoflow.vercel.app/
+- **Repositorio**: https://github.com/OmiwomiIt/kioskoflow
 
 ## Credenciales
 
 El admin debe crearse en la base de datos de Neon:
-- Email: admin@soderia.com
+- Email: admin@kioskoflow.com
 - Password: admin123
 - Rol: ADMIN
 
 ## Estructura del Proyecto
 
 ```
-soderia/
+src/
 ├── prisma/
 │   └── schema.prisma     # Modelo de datos
 ├── src/
@@ -76,7 +76,6 @@ Settings → Environment Variables:
 ## Ejecutar localmente
 
 ```bash
-cd soderia
 npm install
 npm run postinstall
 npm run dev

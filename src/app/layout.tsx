@@ -7,8 +7,8 @@ import { AuthProvider } from "@/components/auth/provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Sodería - Sistema de Presupuestos",
-  description: "Sistema de presupuestos para empresa de distribución de agua embotellada",
+  title: "KioskoFlow - Sistema de Gestión",
+  description: "Sistema de gestión para kioscos y afines",
 };
 
 export default function RootLayout({

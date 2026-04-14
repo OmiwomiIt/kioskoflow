@@ -27,7 +27,7 @@ function TopNav() {
   return (
     <header className="hidden lg:flex fixed top-0 left-0 right-0 h-14 bg-white border-b border-slate-200 z-50 items-center justify-between px-4">
       <div className="flex items-center gap-1">
-        <Link href="/" className="text-lg font-bold text-sky-600 mr-8">Sodería</Link>
+        <Link href="/" className="text-lg font-bold text-sky-600 mr-8">KioskoFlow</Link>
         {navigation.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.href, pathname);
@@ -128,7 +128,7 @@ function MobileHeader() {
   const { user, logout } = useAuth();
   const [showMenu, setShowMenu] = useState(false);
 
-  const pageTitle = navigation.find(n => isActive(n.href, pathname))?.name || 'Sodería';
+  const pageTitle = navigation.find(n => isActive(n.href, pathname))?.name || 'KioskoFlow';
 
   return (
     <header className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-white border-b border-slate-200 z-40 flex items-center justify-between px-4">

@@ -4,12 +4,12 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
-# AGENTS.md - Sodería
+# AGENTS.md - KioskoFlow
 
 ## Proyecto Info
 
-- **App**: https://soderia.vercel.app/
-- **Repo**: https://github.com/OmiwomiIt/soderia
+- **App**: https://kioskoflow.vercel.app/
+- **Repo**: https://github.com/OmiwomiIt/kioskoflow
 - **Stack**: Next.js 16 + React 19 + TypeScript + Tailwind 4 + Prisma 7 + Neon PostgreSQL
 
 ## Tech Stack Versions
@@ -118,5 +118,5 @@ This version has breaking changes — APIs, conventions, and file structure may 
 Crear en Neon SQL Editor:
 ```sql
 INSERT INTO "Usuario" (email, password, nombre, rol, activo, "createdAt", "updatedAt") 
-VALUES ('admin@soderia.com', '$2b$10$...', 'Admin', 'ADMIN', true, NOW(), NOW());
+VALUES ('admin@kioskoflow.com', '$2b$10$...', 'Admin', 'ADMIN', true, NOW(), NOW());
 ```

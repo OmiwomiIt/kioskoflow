@@ -1,13 +1,13 @@
-# SPEC.md - Sistema de Presupuestos Sodería
+# SPEC.md - KioskoFlow - Sistema de Gestión para Kioscos
 
 ## 1. Project Overview
 
-- **Project name**: Soderia - Sistema de Presupuestos
+- **Project name**: KioskoFlow - Sistema de Gestión para Kioscos
 - **Type**: Aplicación web fullstack
-- **Core functionality**: Generación de presupuestos para empresa de distribución de agua embotellada y soda, con exportación a PDF y almacenamiento para consultas futuras
-- **Target users**: Empresa de distribución de agua embotellada y soda
-- **Production URL**: https://soderia.vercel.app/
-- **GitHub**: https://github.com/OmiwomiIt/soderia
+- **Core functionality**: Generación de presupuestos para kioscos y afines, con exportación a PDF y almacenamiento para consultas futuras
+- **Target users**: Kioscos, almacenes y multirubros
+- **Production URL**: https://kioskoflow.vercel.app/
+- **GitHub**: https://github.com/OmiwomiIt/kioskoflow
 - **Stack**: Next.js 16 + React 19 + TypeScript + Tailwind 4 + Prisma 7 + Neon PostgreSQL
 
 ## 2. Tech Stack

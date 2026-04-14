@@ -43,10 +43,10 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-10">
           <div className="w-20 h-20 mx-auto mb-4 bg-sky-100 rounded-2xl flex items-center justify-center">
-            <span className="text-4xl">💧</span>
+            <span className="text-4xl">🏪</span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-800">Sodería</h1>
-          <p className="text-slate-500 mt-1">Sistema de Presupuestos</p>
+          <h1 className="text-2xl font-bold text-slate-800">KioskoFlow</h1>
+          <p className="text-slate-500 mt-1">Sistema de Gestión</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-lg p-6">

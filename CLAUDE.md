@@ -1,11 +1,11 @@
-# CLAUDE.md - Proyecto Sodería
+# CLAUDE.md - Proyecto KioskoFlow
 
 ## Información del Proyecto
 
-- **Nombre**: Sodería - Sistema de Presupuestos
+- **Nombre**: KioskoFlow - Sistema de Gestión para Kioscos
 - **Tipo**: Aplicación web fullstack Next.js
-- **URL Producción**: https://soderia.vercel.app/
-- **Repositorio**: https://github.com/OmiwomiIt/soderia
+- **URL Producción**: https://kioskoflow.vercel.app/
+- **Repositorio**: https://github.com/OmiwomiIt/kioskoflow
 
 ## Tech Stack
 
