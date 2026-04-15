@@ -11,13 +11,16 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const tipo = searchParams.get('tipo');
   const activo = searchParams.get('activo');
+  const categoriaId = searchParams.get('categoriaId');
   
   const where: any = { usuarioId: user.id };
   if (tipo) where.tipo = tipo;
   if (activo !== null) where.activo = activo === 'true';
+  if (categoriaId) where.categoriaId = parseInt(categoriaId);
 
   const productos = await prisma.producto.findMany({
     where,
+    include: { categoria: true },
     orderBy: { nombre: 'asc' },
   });
   return NextResponse.json(productos);
@@ -39,6 +42,7 @@ export async function POST(request: Request) {
       precio: parseFloat(data.precio),
       activo: true,
       usuarioId: user.id,
+      categoriaId: data.categoriaId ? parseInt(data.categoriaId) : null,
     },
   });
   return NextResponse.json(producto, { status: 201 });

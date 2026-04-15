@@ -11,7 +11,8 @@ const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Clientes', href: '/clientes', icon: Users },
   { name: 'Productos', href: '/productos', icon: Package },
-  { name: 'Presupuestos', href: '/presupuestos', icon: FileText },
+  { name: 'Ventas', href: '/ventas', icon: FileText },
+  { name: 'Caja', href: '/caja', icon: UserCog },
 ];
 
 function isActive(href: string, pathname: string) {

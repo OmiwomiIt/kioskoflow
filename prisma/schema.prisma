@@ -17,7 +17,9 @@ model Usuario {
   updatedAt   DateTime     @updatedAt
   productos   Producto[]
   clientes    Cliente[]
-  presupuestos Presupuesto[]
+  ventas     Venta[]
+  cierres    CierreCaja[]
+  categorias Categoria[]
 }
 
 enum RolUsuario {
@@ -25,17 +27,28 @@ enum RolUsuario {
   USUARIO
 }
 
+model Categoria {
+  id        Int        @id @default(autoincrement())
+  nombre    String
+  activo    Boolean   @default(true)
+  usuarioId Int
+  usuario   Usuario   @relation(fields: [usuarioId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  productos Producto[]
+}
+
 model Cliente {
-  id           Int           @id @default(autoincrement())
+  id           Int       @id @default(autoincrement())
   nombre       String
   email        String?
   telefono     String?
   direccion    String?
   usuarioId    Int
-  usuario      Usuario       @relation(fields: [usuarioId], references: [id])
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  presupuestos Presupuesto[]
+  usuario      Usuario   @relation(fields: [usuarioId], references: [id])
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  ventas       Venta[]
 }
 
 model Producto {
@@ -48,47 +61,59 @@ model Producto {
   activo      Boolean             @default(true)
   usuarioId   Int
   usuario     Usuario             @relation(fields: [usuarioId], references: [id])
+  categoriaId Int?
+  categoria   Categoria?          @relation(fields: [categoriaId], references: [id])
   createdAt   DateTime            @default(now())
   updatedAt   DateTime            @updatedAt
-  detalles    DetallePresupuesto[]
+  detalles    DetalleVenta[]
 }
 
 enum TipoProducto {
   AGUA
   SODA
+  OTRO
 }
 
-model Presupuesto {
-  id            Int                 @id @default(autoincrement())
-  numero        String              @unique
-  clienteId     Int
-  cliente       Cliente            @relation(fields: [clienteId], references: [id])
-  usuarioId    Int
-  usuario      Usuario            @relation(fields: [usuarioId], references: [id])
+model Venta {
+  id            Int           @id @default(autoincrement())
+  numero        String        @unique
+  clienteId     Int?
+  cliente       Cliente?      @relation(fields: [clienteId], references: [id])
+  usuarioId     Int
+  usuario       Usuario       @relation(fields: [usuarioId], references: [id])
   subtotal      Float
   iva          Float
   total        Float
   observaciones String?
-  estado       EstadoPresupuesto   @default(BORRADOR)
-  createdAt    DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
-  detalles    DetallePresupuesto[]
+  estado       EstadoVenta   @default(COMPLETADA)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  detalles     DetalleVenta[]
 }
 
-enum EstadoPresupuesto {
-  BORRADOR
-  ENVIADO
-  ACEPTADO
-  RECHAZADO
+enum EstadoVenta {
+  COMPLETADA
+  ANULADA
 }
 
-model DetallePresupuesto {
-  id             Int         @id @default(autoincrement())
-  presupuestoId Int
-  presupuesto   Presupuesto @relation(fields: [presupuestoId], references: [id], onDelete: Cascade)
-  productoId     Int
-  producto       Producto    @relation(fields: [productoId], references: [id])
-  cantidad       Int
+model DetalleVenta {
+  id            Int         @id @default(autoincrement())
+  ventaId       Int
+  venta         Venta       @relation(fields: [ventaId], references: [id], onDelete: Cascade)
+  productoId    Int
+  producto      Producto    @relation(fields: [productoId], references: [id])
+  cantidad     Int
   precioUnitario Float
-  total          Float
+  total        Float
+}
+
+model CierreCaja {
+  id            Int           @id @default(autoincrement())
+  fecha         DateTime       @default(now())
+  usuarioId     Int
+  usuario       Usuario       @relation(fields: [usuarioId], references: [id])
+  totalVentas   Float
+  cantidadVentas Int
+  detalles     Json
+  createdAt    DateTime      @default(now())
 }
