@@ -14,6 +14,7 @@ export async function GET(
   const { id } = await params;
   const producto = await prisma.producto.findFirst({
     where: { id: parseInt(id), usuarioId: user.id },
+    include: { categoria: true },
   });
   if (!producto) {
     return NextResponse.json({ error: 'Producto no encontrado' }, { status: 404 });
@@ -37,10 +38,11 @@ export async function PUT(
     data: {
       nombre: data.nombre,
       descripcion: data.descripcion || null,
-      tipo: data.tipo,
+      tipo: data.tipo || 'OTRO',
       presentacion: data.presentacion,
       precio: parseFloat(data.precio),
       activo: data.activo,
+      categoriaId: data.categoriaId ? parseInt(data.categoriaId) : null,
     },
   });
   return NextResponse.json(producto);
