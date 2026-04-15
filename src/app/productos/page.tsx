@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Modal } from '@/components/ui/modal';
-import { Plus, Edit, Trash2, Package, Search, FolderOpen, Tag } from 'lucide-react';
+import { Plus, Edit, Trash2, Package, Search, FolderOpen, Tag, ScanBarcode } from 'lucide-react';
 
 interface Categoria {
   id: number;
@@ -18,6 +18,7 @@ interface Producto {
   id: number;
   nombre: string;
   descripcion: string | null;
+  codigoBarra: string | null;
   presentacion: string;
   precio: number;
   activo: boolean;
@@ -33,9 +34,27 @@ export default function ProductosPage() {
   const [showModal, setShowModal] = useState(false);
   const [showCatModal, setShowCatModal] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
-  const [form, setForm] = useState({ nombre: '', descripcion: '', presentacion: '', precio: '', categoriaId: '' });
+  const [form, setForm] = useState({ nombre: '', descripcion: '', codigoBarra: '', presentacion: '', precio: '', categoriaId: '' });
   const [catForm, setCatForm] = useState({ nombre: '' });
   const [saving, setSaving] = useState(false);
+
+  const handleScanBarcode = async () => {
+    try {
+      const { Html5Qrcode } = await import('html5-qrcode');
+      const scanner = new Html5Qrcode('barcode-reader');
+      await scanner.start(
+        { facingMode: 'environment' },
+        { fps: 10, qrbox: { width: 250, height: 150 } },
+        (decodedText: string) => {
+          setForm({ ...form, codigoBarra: decodedText });
+          scanner.stop();
+        },
+        () => {}
+      );
+    } catch {
+      alert('Error al iniciar cámara');
+    }
+  };
 
   useEffect(() => {
     Promise.all([
@@ -63,6 +82,7 @@ export default function ProductosPage() {
     const data = {
       nombre: form.nombre,
       descripcion: form.descripcion,
+      codigoBarra: form.codigoBarra || null,
       presentacion: form.presentacion,
       precio: parseFloat(form.precio),
       tipo: 'OTRO',
@@ -78,7 +98,7 @@ export default function ProductosPage() {
     const res = await fetch('/api/productos');
     setProductos(await res.json());
     setShowModal(false);
-    setForm({ nombre: '', descripcion: '', presentacion: '', precio: '', categoriaId: '' });
+    setForm({ nombre: '', descripcion: '', codigoBarra: '', presentacion: '', precio: '', categoriaId: '' });
     setEditId(null);
     setSaving(false);
   }
@@ -127,6 +147,7 @@ export default function ProductosPage() {
     setForm({
       nombre: producto.nombre,
       descripcion: producto.descripcion || '',
+      codigoBarra: producto.codigoBarra || '',
       presentacion: producto.presentacion,
       precio: producto.precio.toString(),
       categoriaId: producto.categoria?.id?.toString() || '',
@@ -159,7 +180,7 @@ export default function ProductosPage() {
             <FolderOpen className="h-4 w-4 mr-2" />
             Categorías
           </Button>
-          <Button onClick={() => { setEditId(null); setForm({ nombre: '', descripcion: '', presentacion: '', precio: '', categoriaId: '' }); setShowModal(true); }} className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700">
+          <Button onClick={() => { setEditId(null); setForm({ nombre: '', descripcion: '', codigoBarra: '', presentacion: '', precio: '', categoriaId: '' }); setShowModal(true); }} className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700">
             <Plus className="h-4 w-4 mr-2" /> Nuevo Producto
           </Button>
         </div>
@@ -288,6 +309,20 @@ export default function ProductosPage() {
               placeholder="0.00"
               className="h-12 mt-1"
             />
+          </div>
+          <div>
+            <Label className="text-slate-700">Código de Barras</Label>
+            <div className="flex gap-2">
+              <Input
+                value={form.codigoBarra}
+                onChange={e => setForm({ ...form, codigoBarra: e.target.value })}
+                placeholder="EAN-13"
+                className="h-12 mt-1 flex-1"
+              />
+              <Button type="button" variant="outline" onClick={handleScanBarcode} className="h-12 mt-1">
+                <ScanBarcode className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
           <div>
             <Label className="text-slate-700">Descripción</Label>

@@ -17,6 +17,9 @@ export async function GET(request: Request) {
   if (tipo) where.tipo = tipo;
   if (activo !== null) where.activo = activo === 'true';
   if (categoriaId) where.categoriaId = parseInt(categoriaId);
+  if (searchParams.get('codigoBarra')) {
+    where.codigoBarra = searchParams.get('codigoBarra');
+  }
 
   const productos = await prisma.producto.findMany({
     where,
@@ -37,6 +40,7 @@ export async function POST(request: Request) {
     data: {
       nombre: data.nombre,
       descripcion: data.descripcion || null,
+      codigoBarra: data.codigoBarra || null,
       tipo: data.tipo,
       presentacion: data.presentacion,
       precio: parseFloat(data.precio),

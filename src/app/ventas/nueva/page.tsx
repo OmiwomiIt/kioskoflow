@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Trash2, ArrowLeft, ShoppingCart, Droplets, Wine } from 'lucide-react';
+import { Plus, Trash2, ArrowLeft, ShoppingCart, Droplets, Wine, ScanBarcode, Search } from 'lucide-react';
+import { Html5Qrcode } from 'html5-qrcode';
 
 interface Cliente {
   id: number;
@@ -15,6 +16,7 @@ interface Cliente {
 interface Producto {
   id: number;
   nombre: string;
+  codigoBarra: string | null;
   tipo: 'AGUA' | 'SODA' | 'OTRO';
   presentacion: string;
   precio: number;
@@ -38,6 +40,8 @@ export default function NuevaVentaPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [showProducto, setShowProducto] = useState(false);
+  const [codigoBusqueda, setCodigoBusqueda] = useState('');
+  const [scanning, setScanning] = useState(false);
 
   useEffect(() => {
     fetch('/api/productos?activo=true').then(r => r.json()).then(data => {
@@ -45,6 +49,39 @@ export default function NuevaVentaPage() {
       setLoading(false);
     });
   }, []);
+
+  const buscarPorCodigo = async (codigo: string) => {
+    const res = await fetch(`/api/productos?activo=true&codigoBarra=${encodeURIComponent(codigo)}`);
+    const data = await res.json();
+    if (data.length > 0) {
+      addProducto(data[0]);
+    } else {
+      setError('Producto no encontrado');
+      setTimeout(() => setError(''), 3000);
+    }
+    setCodigoBusqueda('');
+  };
+
+  const startScanner = async () => {
+    setScanning(true);
+    try {
+      const html5QrCode = new Html5Qrcode('scanner-reader');
+      await html5QrCode.start(
+        { facingMode: 'environment' },
+        { fps: 10, qrbox: { width: 250, height: 150 } },
+        async (decodedText) => {
+          await html5QrCode.stop();
+          setScanning(false);
+          await buscarPorCodigo(decodedText);
+        },
+        () => {}
+      );
+    } catch {
+      setScanning(false);
+      setError('Error al iniciar cámara');
+      setTimeout(() => setError(''), 3000);
+    }
+  };
 
   const addProducto = (producto: Producto) => {
     const existente = detalles.find(d => d.productoId === producto.id);
@@ -149,6 +186,28 @@ export default function NuevaVentaPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="border-0 shadow-lg shadow-slate-200/50">
           <CardContent className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Input
+                  placeholder="Buscar por código de barras..."
+                  value={codigoBusqueda}
+                  onChange={e => setCodigoBusqueda(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && buscarPorCodigo(codigoBusqueda)}
+                  className="pl-10 h-10"
+                />
+              </div>
+              <Button variant="outline" onClick={startScanner} disabled={scanning} className="h-10">
+                <ScanBarcode className="w-4 h-4" />
+              </Button>
+            </div>
+
+            {error && (
+              <div className="p-2 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm mb-4">
+                {error}
+              </div>
+            )}
+
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-slate-900">Productos</h2>
               <Button onClick={() => setShowProducto(!showProducto)} size="sm">
@@ -156,6 +215,15 @@ export default function NuevaVentaPage() {
                 Agregar
               </Button>
             </div>
+
+            {scanning && (
+              <div className="mb-4">
+                <div id="scanner-reader" className="w-full rounded-lg overflow-hidden"></div>
+                <Button variant="outline" onClick={() => setScanning(false)} className="w-full mt-2">
+                  Cancelar
+                </Button>
+              </div>
+            )}
 
             {showProducto && (
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">

@@ -55,6 +55,7 @@ model Producto {
   id           Int                 @id @default(autoincrement())
   nombre       String
   descripcion  String?
+  codigoBarra  String?
   tipo         TipoProducto
   presentacion String
   precio      Float
