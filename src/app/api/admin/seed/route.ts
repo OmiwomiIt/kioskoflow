@@ -150,17 +150,9 @@ const defaultProducts = [
 ];
 
 export async function POST(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const secret = searchParams.get('secret');
-  
-  // Solo permitir si viene de localhost o tiene el secret correcto
-  if (process.env.NODE_ENV === 'development' || secret === 'kioskoflow2024') {
-    // OK
-  } else {
-    const user = await getUserFromRequest(request);
-    if (!user || user.rol !== 'ADMIN') {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
-    }
+  const user = await getUserFromRequest(request);
+  if (!user || user.rol !== 'ADMIN') {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
   }
 
   const { force } = await request.json();
@@ -220,16 +212,9 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const secret = searchParams.get('secret');
-  
-  if (process.env.NODE_ENV === 'development' || secret === 'kioskoflow2024') {
-    // OK
-  } else {
-    const user = await getUserFromRequest(request);
-    if (!user || user.rol !== 'ADMIN') {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
-    }
+  const user = await getUserFromRequest(request);
+  if (!user || user.rol !== 'ADMIN') {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
   }
 
   const prods = await prisma.producto.count({ where: { usuarioId: user.id } });
