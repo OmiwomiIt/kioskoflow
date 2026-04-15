@@ -70,29 +70,41 @@ export async function POST(request: Request) {
     total += item.cantidad * item.precioUnitario;
   }
 
-  const venta = await prisma.venta.create({
-    data: {
-      numero,
-      clienteId: data.clienteId || null,
-      usuarioId: user.id,
-      subtotal: total,
-      iva: 0,
-      total,
-      observaciones: data.observaciones || null,
-      estado: 'COMPLETADA',
-      detalles: {
-        create: data.detalles.map((item: any) => ({
-          productoId: item.productoId,
-          cantidad: item.cantidad,
-          precioUnitario: item.precioUnitario,
-          total: item.cantidad * item.precioUnitario,
-        })),
+  const venta = await prisma.$transaction(async (tx: typeof prisma) => {
+    for (const item of data.detalles) {
+      const producto = await tx.producto.findUnique({ where: { id: item.productoId } });
+      if (producto && producto.stock !== null) {
+        await tx.producto.update({
+          where: { id: item.productoId },
+          data: { stock: producto.stock - item.cantidad },
+        });
+      }
+    }
+
+    return tx.venta.create({
+      data: {
+        numero,
+        clienteId: data.clienteId || null,
+        usuarioId: user.id,
+        subtotal: total,
+        iva: 0,
+        total,
+        observaciones: data.observaciones || null,
+        estado: 'COMPLETADA',
+        detalles: {
+          create: data.detalles.map((item: any) => ({
+            productoId: item.productoId,
+            cantidad: item.cantidad,
+            precioUnitario: item.precioUnitario,
+            total: item.cantidad * item.precioUnitario,
+          })),
+        },
       },
-    },
-    include: {
-      cliente: true,
-      detalles: { include: { producto: true } },
-    },
+      include: {
+        cliente: true,
+        detalles: { include: { producto: true } },
+      },
+    });
   });
 
   return NextResponse.json(venta, { status: 201 });

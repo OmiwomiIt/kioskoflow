@@ -39,6 +39,7 @@ export async function PUT(
       nombre: data.nombre,
       descripcion: data.descripcion || null,
       codigoBarra: data.codigoBarra || null,
+      stock: data.stock !== undefined ? parseInt(data.stock) : undefined,
       tipo: data.tipo || 'OTRO',
       presentacion: data.presentacion,
       precio: parseFloat(data.precio),

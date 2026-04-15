@@ -20,6 +20,7 @@ interface Producto {
   nombre: string;
   descripcion: string | null;
   codigoBarra: string | null;
+  stock: number;
   presentacion: string;
   precio: number;
   activo: boolean;
@@ -35,7 +36,7 @@ export default function ProductosPage() {
   const [showModal, setShowModal] = useState(false);
   const [showCatModal, setShowCatModal] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
-  const [form, setForm] = useState({ nombre: '', descripcion: '', codigoBarra: '', presentacion: '', precio: '', categoriaId: '' });
+  const [form, setForm] = useState({ nombre: '', descripcion: '', codigoBarra: '', stock: '', presentacion: '', precio: '', categoriaId: '' });
   const [catForm, setCatForm] = useState({ nombre: '' });
   const [saving, setSaving] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
@@ -78,6 +79,7 @@ export default function ProductosPage() {
       nombre: form.nombre,
       descripcion: form.descripcion,
       codigoBarra: form.codigoBarra || null,
+      stock: form.stock ? parseInt(form.stock) : 0,
       presentacion: form.presentacion,
       precio: parseFloat(form.precio),
       tipo: 'OTRO',
@@ -93,7 +95,7 @@ export default function ProductosPage() {
     const res = await fetch('/api/productos');
     setProductos(await res.json());
     setShowModal(false);
-    setForm({ nombre: '', descripcion: '', codigoBarra: '', presentacion: '', precio: '', categoriaId: '' });
+    setForm({ nombre: '', descripcion: '', codigoBarra: '', stock: '', presentacion: '', precio: '', categoriaId: '' });
     setEditId(null);
     setSaving(false);
   }
@@ -143,6 +145,7 @@ export default function ProductosPage() {
       nombre: producto.nombre,
       descripcion: producto.descripcion || '',
       codigoBarra: producto.codigoBarra || '',
+      stock: producto.stock.toString(),
       presentacion: producto.presentacion,
       precio: producto.precio.toString(),
       categoriaId: producto.categoria?.id?.toString() || '',
@@ -175,7 +178,7 @@ export default function ProductosPage() {
             <FolderOpen className="h-4 w-4 mr-2" />
             Categorías
           </Button>
-          <Button onClick={() => { setEditId(null); setForm({ nombre: '', descripcion: '', codigoBarra: '', presentacion: '', precio: '', categoriaId: '' }); setShowModal(true); }} className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700">
+          <Button onClick={() => { setEditId(null); setForm({ nombre: '', descripcion: '', codigoBarra: '', stock: '', presentacion: '', precio: '', categoriaId: '' }); setShowModal(true); }} className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700">
             <Plus className="h-4 w-4 mr-2" /> Nuevo Producto
           </Button>
         </div>
@@ -318,6 +321,16 @@ export default function ProductosPage() {
                 <ScanBarcode className="w-5 h-5" />
               </Button>
             </div>
+          </div>
+          <div>
+            <Label className="text-slate-700">Stock</Label>
+            <Input
+              type="number"
+              value={form.stock}
+              onChange={e => setForm({ ...form, stock: e.target.value })}
+              placeholder="Cantidad en inventario"
+              className="h-12 mt-1"
+            />
           </div>
           <div>
             <Label className="text-slate-700">Descripción</Label>

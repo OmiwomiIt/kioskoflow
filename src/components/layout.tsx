@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Users, Package, FileText, UserCog, LogOut, Menu, X, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Users, Package, FileText, UserCog, LogOut, Menu, X, ChevronRight, ClipboardList } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/components/auth/provider';
 
@@ -11,6 +11,7 @@ const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Clientes', href: '/clientes', icon: Users },
   { name: 'Productos', href: '/productos', icon: Package },
+  { name: 'Inventario', href: '/inventario', icon: ClipboardList },
   { name: 'Ventas', href: '/ventas', icon: FileText },
   { name: 'Caja', href: '/caja', icon: UserCog },
 ];
