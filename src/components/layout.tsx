@@ -222,7 +222,10 @@ function MobileHeader() {
             </span>
           </div>
           <button
-            onClick={() => window.location.href = '/api/auth/logout'}
+            onClick={async () => {
+              await fetch('/api/auth/logout', { method: 'POST' });
+              window.location.href = '/login';
+            }}
             className="flex items-center gap-2 w-full px-3 py-3 text-left hover:bg-red-50 rounded-lg text-red-600 font-medium"
           >
             <LogOut className="w-5 h-5" />
