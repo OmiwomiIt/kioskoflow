@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ArrowLeft, Download, Send, Check, X } from 'lucide-react';
+import { ArrowLeft, Download } from 'lucide-react';
 
 interface Detalle {
   cantidad: number;
@@ -14,37 +14,37 @@ interface Detalle {
   total: number;
 }
 
-interface Presupuesto {
+interface Venta {
   id: number;
   numero: string;
-  estado: 'BORRADOR' | 'ENVIADO' | 'ACEPTADO' | 'RECHAZADO';
+  estado: 'COMPLETADA' | 'ANULADA';
   subtotal: number;
   iva: number;
   total: number;
   observaciones: string | null;
   createdAt: string;
   updatedAt: string;
-  cliente: { nombre: string; email: string | null; telefono: string | null; direccion: string | null };
+  cliente: { nombre: string } | null;
   detalles: Detalle[];
 }
 
-export default function VerPresupuestoPage({ params }: { params: Promise<{ id: string }> }) {
+export default function VerVentaPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
-  const [presupuesto, setPresupuesto] = useState<Presupuesto | null>(null);
+  const [venta, setVenta] = useState<Venta | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     params.then(p => {
-      fetch(`/api/presupuestos/${p.id}`).then(res => res.json()).then(data => {
-        setPresupuesto(data);
+      fetch(`/api/ventas/${p.id}`).then(res => res.json()).then(data => {
+        setVenta(data);
         setLoading(false);
       });
     });
   }, [params]);
 
-  async function handleEstado(estado: 'ENVIADO' | 'ACEPTADO' | 'RECHAZADO') {
-    if (!presupuesto) return;
-    await fetch(`/api/presupuestos/${presupuesto.id}`, {
+  async function handleEstado(estado: 'ANULADA') {
+    if (!venta) return;
+    await fetch(`/api/ventas/${venta.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ estado }),
@@ -53,14 +53,12 @@ export default function VerPresupuestoPage({ params }: { params: Promise<{ id: s
   }
 
   async function handleDownload() {
-    window.open(`/api/presupuestos/${presupuesto?.id}/pdf`, '_blank');
+    window.open(`/api/ventas/${venta?.id}/pdf`, '_blank');
   }
 
   const estadoColors: Record<string, string> = {
-    BORRADOR: 'bg-slate-100 text-slate-700',
-    ENVIADO: 'bg-blue-100 text-blue-700',
-    ACEPTADO: 'bg-green-100 text-green-700',
-    RECHAZADO: 'bg-red-100 text-red-700',
+    COMPLETADA: 'bg-emerald-100 text-emerald-700',
+    ANULADA: 'bg-red-100 text-red-700',
   };
 
   if (loading) {
@@ -71,11 +69,11 @@ export default function VerPresupuestoPage({ params }: { params: Promise<{ id: s
     );
   }
 
-  if (!presupuesto) {
+  if (!venta) {
     return (
       <div className="text-center py-8">
-        <p className="text-slate-400">Presupuesto no encontrado</p>
-        <Button variant="outline" className="mt-4" onClick={() => router.push('/presupuestos')}>
+        <p className="text-slate-400">Venta no encontrada</p>
+        <Button variant="outline" className="mt-4" onClick={() => router.push('/ventas')}>
           <ArrowLeft className="h-4 w-4 mr-2" /> Volver
         </Button>
       </div>
@@ -85,56 +83,29 @@ export default function VerPresupuestoPage({ params }: { params: Promise<{ id: s
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" onClick={() => router.push('/presupuestos')}>
+        <Button variant="ghost" onClick={() => router.push('/ventas')}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Presupuesto {presupuesto.numero}</h1>
-          <p className="text-slate-500">Fecha: {new Date(presupuesto.createdAt).toLocaleDateString('es-MX')}</p>
+          <h1 className="text-3xl font-bold text-slate-900">Venta {venta.numero}</h1>
+          <p className="text-slate-500">Fecha: {new Date(venta.createdAt).toLocaleDateString('es-AR')}</p>
         </div>
       </div>
 
       <div className="flex items-center gap-4">
-        <span className={`px-3 py-1 rounded-full font-medium ${estadoColors[presupuesto.estado]}`}>
-          {presupuesto.estado}
+        <span className={`px-3 py-1 rounded-full font-medium ${estadoColors[venta.estado]}`}>
+          {venta.estado}
         </span>
-        <Button variant="outline" onClick={handleDownload}>
-          <Download className="h-4 w-4 mr-2" /> Descargar PDF
-        </Button>
-        {presupuesto.estado === 'BORRADOR' && (
-          <Button onClick={() => handleEstado('ENVIADO')}>
-            <Send className="h-4 w-4 mr-2" /> Enviar a Cliente
+        {venta.estado === 'COMPLETADA' && (
+          <Button variant="outline" onClick={handleDownload}>
+            <Download className="h-4 w-4 mr-2" /> Descargar PDF
           </Button>
-        )}
-        {presupuesto.estado === 'ENVIADO' && (
-          <>
-            <Button variant="default" onClick={() => handleEstado('ACEPTADO')}>
-              <Check className="h-4 w-4 mr-2" /> Aceptar
-            </Button>
-            <Button variant="destructive" onClick={() => handleEstado('RECHAZADO')}>
-              <X className="h-4 w-4 mr-2" /> Rechazar
-            </Button>
-          </>
         )}
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Cliente</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-1">
-            <p className="font-medium">{presupuesto.cliente.nombre}</p>
-            {presupuesto.cliente.email && <p className="text-slate-500">{presupuesto.cliente.email}</p>}
-            {presupuesto.cliente.telefono && <p className="text-slate-500">{presupuesto.cliente.telefono}</p>}
-            {presupuesto.cliente.direccion && <p className="text-slate-500">{presupuesto.cliente.direccion}</p>}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Productos</CardTitle>
+          <CardTitle>Detalles</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -147,7 +118,7 @@ export default function VerPresupuestoPage({ params }: { params: Promise<{ id: s
               </TableRow>
             </TableHeader>
             <TableBody>
-              {presupuesto.detalles.map((d, i) => (
+              {venta.detalles.map((d, i) => (
                 <TableRow key={i}>
                   <TableCell>
                     <div className="font-medium">{d.producto.nombre}</div>
@@ -167,18 +138,18 @@ export default function VerPresupuestoPage({ params }: { params: Promise<{ id: s
         <CardContent className="pt-6">
           <div className="flex justify-between font-bold text-lg">
             <span>Total</span>
-            <span>$AR {presupuesto.total.toFixed(2)}</span>
+            <span>$AR {venta.total.toFixed(2)}</span>
           </div>
         </CardContent>
       </Card>
 
-      {presupuesto.observaciones && (
+      {venta.observaciones && (
         <Card>
           <CardHeader>
             <CardTitle>Observaciones</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-slate-600">{presupuesto.observaciones}</p>
+            <p className="text-slate-600">{venta.observaciones}</p>
           </CardContent>
         </Card>
       )}

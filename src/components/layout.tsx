@@ -121,11 +121,11 @@ function TopNav() {
         </div>
         <div className="flex items-center gap-2">
           <Link
-            href="/presupuestos/nuevo"
+            href="/ventas/nueva"
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-sky-500 to-sky-600 text-white rounded-lg text-sm font-medium hover:from-sky-600 hover:to-sky-700 transition-all shadow-sm"
           >
             <Package className="w-4 h-4" />
-            Nuevo Presupuesto
+            Nueva Venta
           </Link>
         </div>
       </header>
@@ -199,7 +199,7 @@ function MobileHeader() {
       <h1 className="text-lg font-semibold text-slate-800">{pageTitle}</h1>
       <div className="flex items-center gap-2">
         <Link
-          href="/presupuestos/nuevo"
+          href="/ventas/nueva"
           className="p-2 bg-sky-500 rounded-lg"
         >
           <Package className="w-5 h-5 text-white" />
