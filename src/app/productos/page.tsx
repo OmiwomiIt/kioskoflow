@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Modal } from '@/components/ui/modal';
 import { Plus, Edit, Trash2, Package, Search, FolderOpen, Tag, ScanBarcode } from 'lucide-react';
+import { BarcodeScanner } from '@/components/barcode-scanner';
 
 interface Categoria {
   id: number;
@@ -37,23 +38,17 @@ export default function ProductosPage() {
   const [form, setForm] = useState({ nombre: '', descripcion: '', codigoBarra: '', presentacion: '', precio: '', categoriaId: '' });
   const [catForm, setCatForm] = useState({ nombre: '' });
   const [saving, setSaving] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
+  const [scannerActive, setScannerActive] = useState(false);
 
   const handleScanBarcode = async () => {
-    try {
-      const { Html5Qrcode } = await import('html5-qrcode');
-      const scanner = new Html5Qrcode('barcode-reader');
-      await scanner.start(
-        { facingMode: 'environment' },
-        { fps: 10, qrbox: { width: 250, height: 150 } },
-        (decodedText: string) => {
-          setForm({ ...form, codigoBarra: decodedText });
-          scanner.stop();
-        },
-        () => {}
-      );
-    } catch {
-      alert('Error al iniciar cámara');
-    }
+    setShowScanner(true);
+  };
+
+  const handleBarcodeScanned = async (decodedText: string) => {
+    setForm({ ...form, codigoBarra: decodedText });
+    setScannerActive(false);
+    setShowScanner(false);
   };
 
   useEffect(() => {
@@ -319,7 +314,7 @@ export default function ProductosPage() {
                 placeholder="EAN-13"
                 className="h-12 mt-1 flex-1"
               />
-              <Button type="button" variant="outline" onClick={handleScanBarcode} className="h-12 mt-1">
+              <Button type="button" variant="outline" onClick={() => setShowScanner(true)} className="h-12 mt-1">
                 <ScanBarcode className="w-5 h-5" />
               </Button>
             </div>
@@ -372,6 +367,12 @@ export default function ProductosPage() {
               ))
             )}
           </div>
+        </div>
+      </Modal>
+
+      <Modal open={showScanner} onClose={() => setShowScanner(false)} title="Escanear Código de Barras">
+        <div className="space-y-4">
+          <BarcodeScanner onScan={handleBarcodeScanned} onClose={() => setShowScanner(false)} />
         </div>
       </Modal>
     </div>

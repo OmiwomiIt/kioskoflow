@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Modal } from '@/components/ui/modal';
 import { Plus, Trash2, ArrowLeft, ShoppingCart, Droplets, Wine, ScanBarcode, Search } from 'lucide-react';
-import { Html5Qrcode } from 'html5-qrcode';
+import { BarcodeScanner } from '@/components/barcode-scanner';
 
 interface Cliente {
   id: number;
@@ -41,7 +42,12 @@ export default function NuevaVentaPage() {
   const [error, setError] = useState('');
   const [showProducto, setShowProducto] = useState(false);
   const [codigoBusqueda, setCodigoBusqueda] = useState('');
-  const [scanning, setScanning] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
+
+  const handleBarcodeScanned = async (decodedText: string) => {
+    await buscarPorCodigo(decodedText);
+    setShowScanner(false);
+  };
 
   useEffect(() => {
     fetch('/api/productos?activo=true').then(r => r.json()).then(data => {
@@ -60,27 +66,6 @@ export default function NuevaVentaPage() {
       setTimeout(() => setError(''), 3000);
     }
     setCodigoBusqueda('');
-  };
-
-  const startScanner = async () => {
-    setScanning(true);
-    try {
-      const html5QrCode = new Html5Qrcode('scanner-reader');
-      await html5QrCode.start(
-        { facingMode: 'environment' },
-        { fps: 10, qrbox: { width: 250, height: 150 } },
-        async (decodedText) => {
-          await html5QrCode.stop();
-          setScanning(false);
-          await buscarPorCodigo(decodedText);
-        },
-        () => {}
-      );
-    } catch {
-      setScanning(false);
-      setError('Error al iniciar cámara');
-      setTimeout(() => setError(''), 3000);
-    }
   };
 
   const addProducto = (producto: Producto) => {
@@ -197,7 +182,7 @@ export default function NuevaVentaPage() {
                   className="pl-10 h-10"
                 />
               </div>
-              <Button variant="outline" onClick={startScanner} disabled={scanning} className="h-10">
+              <Button variant="outline" onClick={() => setShowScanner(true)} disabled={false} className="h-10">
                 <ScanBarcode className="w-4 h-4" />
               </Button>
             </div>
@@ -215,15 +200,6 @@ export default function NuevaVentaPage() {
                 Agregar
               </Button>
             </div>
-
-            {scanning && (
-              <div className="mb-4">
-                <div id="scanner-reader" className="w-full rounded-lg overflow-hidden"></div>
-                <Button variant="outline" onClick={() => setScanning(false)} className="w-full mt-2">
-                  Cancelar
-                </Button>
-              </div>
-            )}
 
             {showProducto && (
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
@@ -331,6 +307,10 @@ export default function NuevaVentaPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Modal open={showScanner} onClose={() => setShowScanner(false)} title="Escanear Código">
+        <BarcodeScanner onScan={handleBarcodeScanned} onClose={() => setShowScanner(false)} />
+      </Modal>
     </div>
   );
 }
