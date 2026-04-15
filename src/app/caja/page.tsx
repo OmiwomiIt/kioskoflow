@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { DollarSign, ShoppingCart, Clock, CheckCircle, RotateCcw } from 'lucide-react';
+import { DollarSign, ShoppingCart, Clock, CheckCircle, RotateCcw, Download } from 'lucide-react';
 
 interface VentaDelDia {
   id: number;
@@ -146,13 +146,17 @@ export default function CajaPage() {
 
       {selectedCierre && (
         <Card className="border-0 shadow-lg shadow-slate-200/50">
-          <CardHeader className="border-b border-slate-100">
+          <CardHeader className="border-b border-slate-100 flex flex-row items-center justify-between">
             <CardTitle className="text-lg font-semibold text-slate-900">
               Detalle del Cierre
               <span className="text-sm font-normal text-slate-500 ml-2">
                 {new Date(selectedCierre.fecha).toLocaleString('es-AR')}
               </span>
             </CardTitle>
+            <Button variant="outline" size="sm" onClick={() => window.open(`/api/caja/${selectedCierre.id}/pdf`, '_blank')}>
+              <Download className="w-4 h-4 mr-2" />
+              PDF
+            </Button>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
