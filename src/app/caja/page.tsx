@@ -3,7 +3,15 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { DollarSign, ShoppingCart, Clock, CheckCircle, Package, RotateCcw } from 'lucide-react';
+import { DollarSign, ShoppingCart, Clock, CheckCircle, RotateCcw } from 'lucide-react';
+
+interface VentaDelDia {
+  id: number;
+  numero: string;
+  total: number;
+  createdAt: string;
+  detalles: { cantidad: number; producto: { nombre: string }; total: number }[];
+}
 
 interface Cierre {
   id: number;
@@ -15,13 +23,18 @@ interface Cierre {
 
 export default function CajaPage() {
   const [cierres, setCierres] = useState<Cierre[]>([]);
+  const [ventas, setVentas] = useState<VentaDelDia[]>([]);
   const [loading, setLoading] = useState(true);
   const [closing, setClosing] = useState(false);
   const [selectedCierre, setSelectedCierre] = useState<Cierre | null>(null);
 
   useEffect(() => {
-    fetch('/api/caja').then(res => res.json()).then(data => {
-      setCierres(data);
+    Promise.all([
+      fetch('/api/caja').then(res => res.json()),
+      fetch('/api/caja?tipo=ventas').then(res => res.json()),
+    ]).then(([cierresData, ventasData]) => {
+      setCierres(cierresData);
+      setVentas(ventasData);
       setLoading(false);
     });
   }, []);
@@ -29,10 +42,20 @@ export default function CajaPage() {
   async function handleCierre() {
     if (!confirm('¿Generar cierre de caja?')) return;
     setClosing(true);
-    const res = await fetch('/api/caja', { method: 'POST' });
-    const cierre = await res.json();
-    setCierres([cierre, ...cierres]);
-    setSelectedCierre(cierre);
+    try {
+      const res = await fetch('/api/caja', { method: 'POST' });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.error || 'Error al generar cierre');
+        setClosing(false);
+        return;
+      }
+      const cierre = await res.json();
+      setCierres([cierre, ...cierres]);
+      setSelectedCierre(cierre);
+    } catch {
+      alert('Error de conexión');
+    }
     setClosing(false);
   }
 
@@ -44,9 +67,8 @@ export default function CajaPage() {
     );
   }
 
-  const hoy = new Date().toDateString();
-  const cierresHoy = cierres.filter(c => new Date(c.fecha).toDateString() === hoy);
-  const totalHoy = cierresHoy.reduce((sum, c) => sum + c.totalVentas, 0);
+  const ventasDelDia = ventas;
+  const totalVentasDia = ventasDelDia.reduce((sum, v) => sum + v.total, 0);
 
   return (
     <div className="space-y-6">
@@ -80,7 +102,7 @@ export default function CajaPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-500">Ventas de Hoy</p>
-                <p className="text-2xl font-bold text-slate-900 mt-1">{cierresHoy.length}</p>
+                <p className="text-2xl font-bold text-slate-900 mt-1">{ventasDelDia.length}</p>
               </div>
               <div className="w-12 h-12 rounded-xl bg-sky-500/10 flex items-center justify-center">
                 <ShoppingCart className="w-6 h-6 text-sky-600" />
@@ -95,7 +117,7 @@ export default function CajaPage() {
               <div>
                 <p className="text-sm font-medium text-slate-500">Total de Hoy</p>
                 <p className="text-2xl font-bold text-emerald-600 mt-1">
-                  $AR {totalHoy.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                  $AR {totalVentasDia.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                 </p>
               </div>
               <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center">

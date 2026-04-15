@@ -8,6 +8,31 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
 
+  const { searchParams } = new URL(request.url);
+  const tipo = searchParams.get('tipo');
+
+  if (tipo === 'ventas') {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const ventas = await prisma.venta.findMany({
+      where: {
+        usuarioId: user.id,
+        estado: 'COMPLETADA',
+        createdAt: { gte: startOfDay, lte: endOfDay },
+      },
+      include: {
+        detalles: {
+          include: { producto: true },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    return NextResponse.json(ventas);
+  }
+
   const cierres = await prisma.cierreCaja.findMany({
     where: { usuarioId: user.id },
     orderBy: { fecha: 'desc' },
@@ -22,8 +47,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
 
-  const data = await request.json();
-  
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
   const endOfDay = new Date();
@@ -56,6 +79,10 @@ export async function POST(request: Request) {
       productoCantidades[nombre].cantidad += detalle.cantidad;
       productoCantidades[nombre].total += detalle.total;
     }
+  }
+
+  if (ventas.length === 0) {
+    return NextResponse.json({ error: 'No hay ventas completadas hoy' }, { status: 400 });
   }
 
   const cierre = await prisma.cierreCaja.create({
