@@ -104,12 +104,9 @@ export default function NuevaVentaPage() {
 
   const updateCantidad = (productoId: number, cantidad: number) => {
     if (cantidad <= 0) return;
-    const producto = productosMap.get(productoId);
-    const step = producto?.permiteFraccion ? 0.5 : 1;
-    const nuevaCantidad = Math.round(cantidad / step) * step;
     setDetalles(detalles.map(d => 
       d.productoId === productoId 
-        ? { ...d, cantidad: nuevaCantidad, total: nuevaCantidad * d.precioUnitario }
+        ? { ...d, cantidad, total: cantidad * d.precioUnitario }
         : d
     ));
   };
@@ -299,8 +296,8 @@ export default function NuevaVentaPage() {
                         {permiteFraccion ? (
                           <input
                             type="number"
-                            step="0.25"
-                            min="0.25"
+                            step="0.01"
+                            min="0.01"
                             value={detalle.cantidad}
                             onChange={e => {
                               const val = parseFloat(e.target.value);
