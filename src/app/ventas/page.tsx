@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, ShoppingCart, Trash2, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Plus, ShoppingCart, Trash2, ArrowUpRight } from 'lucide-react';
 
 interface Venta {
   id: number;
@@ -54,26 +54,27 @@ export default function VentasPage() {
     }
   }
 
-  const getEstadoColor = (estado: string) => {
-    switch (estado) {
-      case 'COMPLETADA': return 'bg-emerald-100 text-emerald-600';
-      case 'ANULADA': return 'bg-red-100 text-red-600';
-      default: return 'bg-slate-100 text-slate-600';
-    }
-  };
+  const filters = [
+    { key: 'ALL', label: 'Todas' },
+    { key: 'COMPLETADA', label: 'Completadas' },
+    { key: 'ANULADA', label: 'Anuladas' },
+  ];
 
-  const getEstadoIcon = (estado: string) => {
+  const getEstadoBadge = (estado: string) => {
     switch (estado) {
-      case 'COMPLETADA': return <CheckCircle className="w-4 h-4" />;
-      case 'ANULADA': return <XCircle className="w-4 h-4" />;
-      default: return <Clock className="w-4 h-4" />;
+      case 'COMPLETADA':
+        return 'bg-emerald-50 text-emerald-600';
+      case 'ANULADA':
+        return 'bg-red-50 text-red-600';
+      default:
+        return 'bg-stone-100 text-stone-600';
     }
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-sky-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
       </div>
     );
   }
@@ -82,79 +83,95 @@ export default function VentasPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Ventas</h1>
-          <p className="text-slate-500">{ventas.length} ventas registradas</p>
+          <h1 className="text-2xl font-bold text-stone-800 tracking-tight">Ventas</h1>
+          <p className="text-stone-500 text-sm mt-0.5">{ventas.length} ventas registradas</p>
         </div>
-        <Link href="/ventas/nueva" className="bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 flex items-center gap-2 px-4 py-3 text-white rounded-xl font-medium">
-          <Plus className="w-5 h-5" />
-          Nueva Venta
+        <Link href="/ventas/nueva">
+          <Button className="w-full sm:w-auto">
+            <Plus className="w-4 h-4 mr-2" />
+            Nueva Venta
+          </Button>
         </Link>
       </div>
 
-      <div className="flex gap-2">
-        <Button variant={filter === 'ALL' ? 'default' : 'outline'} size="sm" onClick={() => setFilter('ALL')}>
-          Todas
-        </Button>
-        <Button variant={filter === 'COMPLETADA' ? 'default' : 'outline'} size="sm" onClick={() => setFilter('COMPLETADA')} className={filter === 'COMPLETADA' ? 'bg-emerald-500' : ''}>
-          <CheckCircle className="w-4 h-4 mr-1" />
-          Completadas
-        </Button>
-        <Button variant={filter === 'ANULADA' ? 'default' : 'outline'} size="sm" onClick={() => setFilter('ANULADA')} className={filter === 'ANULADA' ? 'bg-red-500' : ''}>
-          <XCircle className="w-4 h-4 mr-1" />
-          Anuladas
-        </Button>
+      <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+        {filters.map((f) => (
+          <button
+            key={f.key}
+            onClick={() => setFilter(f.key)}
+            className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
+              filter === f.key
+                ? 'bg-orange-500 text-white'
+                : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50'
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
       </div>
 
-      <Card className="border-0 shadow-lg shadow-slate-200/50">
-        <CardContent className="p-0">
-          {ventas.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16">
-              <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-                <ShoppingCart className="w-8 h-8 text-slate-400" />
-              </div>
-              <p className="text-slate-500 text-lg">No hay ventas registradas</p>
-              <Link href="/ventas/nueva" className="mt-4 bg-sky-500 hover:bg-sky-600 px-4 py-2 text-white rounded-lg font-medium">
-                Registrar primera venta
-              </Link>
+      {ventas.length === 0 ? (
+        <Card className="border-0 shadow-md shadow-stone-200/50">
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <div className="w-14 h-14 rounded-2xl bg-stone-100 flex items-center justify-center mb-4">
+              <ShoppingCart className="w-7 h-7 text-stone-400" />
             </div>
-          ) : (
-            <div className="divide-y divide-slate-100">
-              {ventas.map(venta => (
-                <div key={venta.id} className="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors">
-                  <Link href={`/ventas/${venta.numero.replace('VENTA-', '')}`} className="flex items-center gap-4 flex-1">
-                    <div className="w-10 h-10 rounded-lg bg-sky-100 flex items-center justify-center">
-                      <ShoppingCart className="w-5 h-5 text-sky-600" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-slate-900">{venta.numero}</p>
-                      <p className="text-sm text-slate-500">
-                        {venta.cliente?.nombre || 'Sin cliente'} • {venta.cantidadItems} productos
-                      </p>
+            <p className="text-stone-500 font-medium">No hay ventas</p>
+            <Link href="/ventas/nueva">
+              <Button className="mt-4">Registrar primera venta</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {ventas.map((venta) => (
+            <Card key={venta.id} className="border-0 shadow-md shadow-stone-200/50 card-hover">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <Link href={`/ventas/${venta.id}`} className="flex-1">
+                    <div className="flex items-center gap-4">
+                      <div className="w-11 h-11 rounded-xl bg-orange-50 flex items-center justify-center">
+                        <ShoppingCart className="w-5 h-5 text-orange-500" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-stone-800">{venta.numero}</p>
+                        <p className="text-xs text-stone-400">
+                          {new Date(venta.createdAt).toLocaleString('es-AR')} · {venta.cantidadItems} items
+                        </p>
+                      </div>
                     </div>
                   </Link>
-                  <div className="flex items-center gap-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${getEstadoColor(venta.estado)}`}>
-                      {getEstadoIcon(venta.estado)}
-                      {venta.estado}
+                  <div className="flex items-center gap-3">
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${getEstadoBadge(venta.estado)}`}>
+                      {venta.estado === 'COMPLETADA' ? 'Completada' : 'Anulada'}
                     </span>
-                    <div className="text-right">
-                      <p className="font-semibold text-slate-900">
-                        $AR {venta.total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-                      </p>
-                      <p className="text-xs text-slate-400">
-                        {new Date(venta.createdAt).toLocaleString('es-AR')}
-                      </p>
+                    <p className="font-bold text-stone-800">$AR {venta.total.toLocaleString('es-AR', { minimumFractionDigits: 0 })}</p>
+                    <div className="flex gap-1">
+                      {venta.estado === 'COMPLETADA' && (
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleDelete(venta.id);
+                          }}
+                          className="p-2 hover:bg-red-50 rounded-xl transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-400" />
+                        </button>
+                      )}
+                      <Link
+                        href={`/ventas/${venta.id}`}
+                        className="p-2 hover:bg-stone-100 rounded-xl transition-colors"
+                      >
+                        <ArrowUpRight className="w-4 h-4 text-stone-400" />
+                      </Link>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(venta.id)}>
-                      <Trash2 className="w-4 h-4 text-red-500" />
-                    </Button>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

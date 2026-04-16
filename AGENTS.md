@@ -6,13 +6,13 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # AGENTS.md - KioskoFlow
 
-## Proyecto Info
+## Proyecto
 
 - **App**: https://kioskoflow.vercel.app/
 - **Repo**: https://github.com/OmiwomiIt/kioskoflow
 - **Stack**: Next.js 16 + React 19 + TypeScript + Tailwind 4 + Prisma 7 + Neon PostgreSQL
 
-## Tech Stack Versions
+## Tech Stack
 
 - Next.js 16.x (App Router)
 - React 19.x
@@ -21,13 +21,14 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Prisma 7.x
 - shadcn/ui
 - jose + bcrypt (auth)
+- html5-qrcode (escáner)
 
 ## Base de Datos
 
 - **Proveedor**: Neon PostgreSQL
 - **Connection String**: 
   ```
-  postgresql://neondb_owner:npg_QcaTsu1POCr9@ep-aged-cloud-anjztkxc.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require
+  postgresql://neondb_owner:npg_X7rSOl2pLjPt@ep-floral-block-amkxw9i1-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require
   ```
 - **Esquema**: en `prisma/schema.prisma`
 
@@ -45,37 +46,31 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Errores Comunes y Soluciones
 
-### Prisma Client no encontrado en Vercel
+### Prisma Client no encontrado
 
 **Error**: `ReferenceError: PrismaClient is not defined`
 
-**Causa**: Prisma 7.x no exporta correctamente en builds de Vercel.
-
-**Solución**:
-1. Ensure `package.json` tiene `"postinstall": "prisma generate"`
-2. Regenerar: `npm run postinstall`
+**Solución**: `npm run postinstall`
 
 ### Error 500 en producción
 
-**Causa**: DATABASE_URL no configurada en Vercel.
+**Causa**: DATABASE_URL no configurada en Vercel
 
-**Solución**: Agregar en Vercel Settings → Environment Variables.
+**Solución**: Agregar en Vercel Settings → Environment Variables
 
-### Unique constraint failed on numero
+### Número de venta duplicado
 
-**Error**: `Unique constraint failed on the fields: (\`numero\`)`
+**Error**: `Unique constraint failed on the fields: (numero)`
 
-**Causa**: Número de presupuesto duplicado.
-
-**Solución**: La función generateNumero en presupuestos/route.ts ahora verifica existence.
+**Solución**: La función generateNumero verifica existencia antes de crear
 
 ## Diseño UI
 
-- **Colores**: sky-500 (#0ea5e9) para agua, orange-500 (#f97316) para soda
+- **Colores**: sky-500 (#0ea5e9) agua, orange-500 (#f97316) soda
 - **Font**: Inter
 - **Moneda**: Pesos Argentinos ($AR)
-- **Mobile-first**: Bottom nav en móvil, top tabs en PC
-- **Botones táctiles**: h-11, h-12 para mejor touch
+- **Mobile-first**: Bottom nav en móvil, top nav en PC
+- **Botones táctiles**: h-11, h-12
 
 ## Estructura Pages
 
@@ -83,10 +78,12 @@ This version has breaking changes — APIs, conventions, and file structure may 
 /                     → Dashboard
 /login               → Login
 /clientes             → Lista clientes
-/productos           → Lista productos
-/presupuestos        → Lista presupuestos
-/presupuestos/nuevo  → Nuevo presupuesto
-/presupuestos/[id]   → Ver presupuesto
+/productos           → Productos (fracción + escáner)
+/ventas              → Lista ventas
+/ventas/nueva        → Nueva venta (búsqueda dinámica)
+/ventas/[id]         → Ver venta
+/caja                → Cierre caja + PDF
+/inventario          → Reporte stock
 /usuarios           → Gestión usuarios (admin)
 ```
 
@@ -97,13 +94,19 @@ This version has breaking changes — APIs, conventions, and file structure may 
 /api/auth/logout     → POST
 /api/clientes       → GET, POST
 /api/clientes/[id]  → GET, PUT, DELETE
+/api/categorias     → GET, POST
+/api/categorias/[id] → DELETE
 /api/productos      → GET, POST
 /api/productos/[id] → GET, PUT, DELETE
-/api/presupuestos   → GET, POST
-/api/presupuestos/[id] → GET, PUT, DELETE
-/api/presupuestos/[id]/pdf → GET
-/api/usuarios      → GET, POST (admin)
+/api/ventas         → GET, POST
+/api/ventas/[id]    → GET, PUT, DELETE
+/api/ventas/[id]/pdf → GET
+/api/caja           → GET, POST
+/api/caja/[id]/pdf  → GET
+/api/inventario     → GET
+/api/usuarios       → GET, POST (admin)
 /api/usuarios/[id]  → PUT, DELETE (admin)
+/api/admin/seed     → POST
 ```
 
 ## Autenticación
@@ -113,10 +116,24 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Middleware protege rutas
 - getUserFromRequest en lib/auth.ts
 
+## Features
+
+### Venta por Fracción
+- Campo `permiteFraccion: Boolean` en modelo Producto
+- Campo `unidadMedida: String` (KG/L)
+- Campo `stock` y `DetalleVenta.cantidad` son Float
+- Input decimal en nueva venta para productos fraccionables
+
+### Búsqueda Dinámica
+- Productos filtra al escribir en el buscador
+- Filtra por nombre, código o presentación
+- Soporta escaneo de código de barras
+
 ## Admin Setup
 
-Crear en Neon SQL Editor:
 ```sql
 INSERT INTO "Usuario" (email, password, nombre, rol, activo, "createdAt", "updatedAt") 
 VALUES ('admin@kioskoflow.com', '$2b$10$...', 'Admin', 'ADMIN', true, NOW(), NOW());
 ```
+
+Credentials: admin@kioskoflow.com / admin123

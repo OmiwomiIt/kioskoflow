@@ -1,14 +1,21 @@
-# KioskoFlow - Sistema de Gestión
+# KioskoFlow - Sistema de Gestión para Kioscos
 
-Aplicación web para gestión de kioskos, almacenes y multirubros con control de stock y cierre de caja.
+Aplicación web para gestión de kioscos, almacenes y multirubros con control de stock y cierre de caja.
+
+## Demo
+
+- **Producción**: https://kioskoflow.vercel.app/
+- **Admin**: admin@kioskoflow.com / admin123
 
 ## Características
 
 - **Autenticación**: Login con JWT, roles ADMIN y USUARIO
-- **Dashboard**: Estadísticas del negocio
+- **Dashboard**: Estadísticas del negocio en tiempo real
 - **Clientes**: CRUD completo
-- **Productos**: Catálogo con stock, código de barra y categorías
-- **Escaneo**: Lectura de códigos de barra con cámara
+- **Productos**: Catálogo con stock, código de barras y categorías
+- **Venta por fracción**: Productos pueden venderse por KG/L con cantidad decimal
+- **Búsqueda dinámica**: Filtro de productos al escribir en nueva venta
+- **Escaneo**: Lectura de códigos de barras con cámara
 - **Ventas**: Nueva venta con decremento automático de stock
 - **Cierre de Caja**: Ventas del día + exportación PDF
 - **Inventario**: Reporte de productos bajo umbral de stock
@@ -22,50 +29,42 @@ Aplicación web para gestión de kioskos, almacenes y multirubros con control de
 - Prisma ORM 7 + Neon PostgreSQL
 - jsPDF + jsPDF-AutoTable para PDF
 - shadcn/ui components
-- Quagga2 para escaneo de códigos de barra
+- html5-qrcode para escaneo de códigos de barras
 - bcrypt + jose para autenticación
-
-## Deploy
-
-- **Producción**: https://kioskoflow.vercel.app/
-- **Repositorio**: https://github.com/OmiwomiIt/kioskoflow
-
-## Credenciales
-
-- Email: admin@kioskoflow.com
-- Password: admin123
 
 ## Estructura del Proyecto
 
 ```
 src/
 ├── app/
-│   ├── api/                    # Endpoints REST
-│   │   ├── auth/              # Login, logout, verify
-│   │   ├── clientes/          # CRUD clientes
-│   │   ├── categorias/        # CRUD categorías
-│   │   ├── productos/         # CRUD productos
-│   │   ├── ventas/            # CRUD ventas
-│   │   ├── caja/              # Cierre caja + PDF
-│   │   ├── inventario/       # Reporte stock bajo
-│   │   ├── usuarios/          # Gestión usuarios
-│   │   └── admin/seed/        # Regenerar datos por defecto
-│   ├── login/                  # Página login
-│   ├── clientes/              # UI clientes
-│   ├── productos/             # UI productos
-│   ├── ventas/                # UI ventas
-│   ├── nueva/                 # Nueva venta
-│   ├── caja/                  # Cierre de caja
-│   ├── inventario/            # Reporte stock
-│   └── usuarios/              # UI gestión usuarios
+│   ├── api/
+│   │   ├── auth/          # Login, logout, verify
+│   │   ├── clientes/      # CRUD clientes
+│   │   ├── categorias/    # CRUD categorías
+│   │   ├── productos/    # CRUD productos
+│   │   ├── ventas/      # CRUD ventas
+│   │   ├── caja/        # Cierre caja + PDF
+│   │   ├── inventario/  # Reporte stock bajo
+│   │   ├── usuarios/    # Gestión usuarios
+│   │   └── admin/seed/  # Datos por defecto
+│   ├── login/            # Página login
+│   ├── clientes/         # UI clientes
+│   ├── productos/       # UI productos (fracción + escáner)
+│   ├── ventas/          # UI ventas
+│   ├── nueva/          # Nueva venta (búsqueda + escáner)
+│   ├── caja/          # Cierre de caja
+│   ├── inventario/    # Reporte stock
+│   └── usuarios/      # UI gestión usuarios
 ├── components/
-│   ├── ui/                    # Componentes shadcn
-│   ├── layout.tsx             # Layout con navegación
-│   └── barcode-scanner.tsx    # Escáner códigos de barra
+│   ├── ui/              # Componentes shadcn
+│   ├── layout.tsx        # Layout con navegación
+│   ├── barcode-scanner.tsx # Escáner códigos
+│   └── modal.tsx        # Modal reutilizable
 └── lib/
-    ├── prisma.ts              # Cliente Prisma
-    ├── auth.ts                # Utilidad JWT
-    └── pdf.ts                 # Generación PDF
+    ├── prisma.ts      # Cliente Prisma
+    ├── auth.ts      # Utilidad JWT
+    ├── pdf.ts      # Generación PDF
+    └── utils.ts    # Utilidades
 ```
 
 ## Variables de Entorno
@@ -98,9 +97,9 @@ Abrir http://localhost:3000
 
 ```bash
 npm run dev         # Desarrollo
-npm run build       # Build producción
-npm run start       # Servidor producción
-npm run lint        # Linter
+npm run build      # Build producción
+npm run start      # Servidor producción
+npm run lint      # Linter
 npm run postinstall # Regenerar Prisma client
 ```
 

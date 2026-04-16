@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Store, Loader2 } from 'lucide-react';
+import { Store, Loader2, ShoppingBag } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -40,26 +40,30 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-4 py-12">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-[#fafaf9] px-4 py-12 relative overflow-hidden">
+      <div className="absolute inset-0 pattern-dots opacity-40" />
+      <div className="absolute top-1/4 -left-32 w-64 h-64 bg-orange-400/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/4 -right-32 w-64 h-64 bg-stone-300/30 rounded-full blur-3xl" />
+      
+      <div className="w-full max-w-md relative">
         <div className="text-center mb-10">
-          <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-sky-400 to-sky-600 rounded-3xl flex items-center justify-center shadow-lg shadow-sky-500/30">
-            <Store className="w-12 h-12 text-white" />
+          <div className="w-20 h-20 mx-auto mb-5 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center shadow-xl shadow-orange-500/20">
+            <ShoppingBag className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-white mb-2">KioskoFlow</h1>
-          <p className="text-slate-400 text-lg">Sistema de Gestión</p>
+          <h1 className="text-3xl font-bold text-stone-800 mb-1.5 tracking-tight">KioskoFlow</h1>
+          <p className="text-stone-500 text-sm">Sistema de gestión para kioscos</p>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/10">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="bg-white rounded-3xl shadow-xl shadow-stone-200/50 p-8 border border-stone-100">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
-              <div className="p-4 bg-red-500/20 border border-red-500/30 rounded-xl text-red-200 text-sm backdrop-blur-sm">
+              <div className="p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm">
                 {error}
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-3">
+              <label className="block text-sm font-medium text-stone-700 mb-2.5">
                 Correo electrónico
               </label>
               <Input
@@ -67,14 +71,14 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@kioskoflow.com"
-                className="h-14 text-base bg-white/10 border-white/10 text-white placeholder:text-slate-500 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 backdrop-blur-sm"
+                className="h-12"
                 required
                 autoComplete="email"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-3">
+              <label className="block text-sm font-medium text-stone-700 mb-2.5">
                 Contraseña
               </label>
               <Input
@@ -82,7 +86,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="h-14 text-base bg-white/10 border-white/10 text-white placeholder:text-slate-500 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 backdrop-blur-sm"
+                className="h-12"
                 required
                 autoComplete="current-password"
               />
@@ -90,7 +94,7 @@ export default function LoginPage() {
 
             <Button 
               type="submit" 
-              className="w-full h-14 text-base bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 rounded-xl font-semibold shadow-lg shadow-sky-500/25 transition-all duration-200"
+              className="w-full h-12 text-base"
               disabled={loading}
             >
               {loading ? (
@@ -105,8 +109,8 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <p className="text-center text-sm text-slate-500 mt-8">
-          Ingresa tus credenciales para continuar
+        <p className="text-center text-xs text-stone-400 mt-6">
+          Credentials: admin@kioskoflow.com / admin123
         </p>
       </div>
     </div>

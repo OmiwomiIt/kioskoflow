@@ -3,15 +3,16 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]',
+  'inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.96] btn-active',
   {
     variants: {
       variant: {
-        default: 'bg-sky-500 text-white hover:bg-sky-600 shadow-sm',
-        secondary: 'bg-orange-500 text-white hover:bg-orange-600 shadow-sm',
-        outline: 'border-2 border-slate-200 bg-transparent hover:bg-slate-50 text-slate-700',
-        ghost: 'hover:bg-slate-100 text-slate-700',
-        destructive: 'bg-red-500 text-white hover:bg-red-600',
+        default: 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-500/25 hover:from-orange-600 hover:to-orange-700',
+        secondary: 'bg-stone-800 text-white shadow-lg shadow-stone-800/20 hover:bg-stone-900',
+        outline: 'border-2 border-stone-200 bg-transparent hover:bg-stone-50 text-stone-700 hover:border-stone-300',
+        ghost: 'hover:bg-stone-100 text-stone-700',
+        destructive: 'bg-red-500 text-white shadow-lg shadow-red-500/25 hover:bg-red-600',
+        success: 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25 hover:bg-emerald-600',
       },
       size: {
         default: 'h-11 px-5 py-2',

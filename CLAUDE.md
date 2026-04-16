@@ -8,63 +8,79 @@
 - **Repositorio**: https://github.com/OmiwomiIt/kioskoflow
 - **Stack**: Next.js 16 + React 19 + TypeScript + Tailwind 4 + Prisma 7 + Neon PostgreSQL
 
-## Estructura del Proyecto
+## Arquitectura
 
 ```
 src/
-├── app/
-│   ├── api/                    # Endpoints REST
-│   │   ├── auth/              # Login, logout, verify
-│   │   ├── clientes/          # CRUD clientes
-│   │   ├── categorias/       # CRUD categorías
-│   │   ├── productos/         # CRUD productos
-│   │   ├── ventas/            # CRUD ventas
-│   │   ├── caja/              # Cierre caja + PDF
-│   │   ├── inventario/       # Reporte stock bajo
-│   │   ├── usuarios/          # Gestión usuarios (admin)
-│   │   └── admin/seed/        # Regenerar datos por defecto
-│   ├── login/                  # Página login
-│   ├── clientes/              # UI clientes
-│   ├── productos/             # UI productos (con stock y escáner)
-│   ├── ventas/                # UI ventas
-│   ├── nueva/                 # Nueva venta (con escáner)
-│   ├── caja/                  # Cierre de caja + PDF
-│   ├── inventario/            # Reporte de stock
-│   └── usuarios/              # UI gestión usuarios
+├── app/                    # Next.js App Router
+│   ├── api/              # API Routes (REST endpoints)
+│   │   ├── auth/        # Login, logout, verify JWT
+│   │   ├── clientes/    # CRUD clientes
+│   │   ├── categorias/  # CRUD categorías
+│   │   ├── productos/  # CRUD productos
+│   │   ├── ventas/    # CRUD ventas
+│   │   ├── caja/      # Cierre caja + PDF
+│   │   ├── inventario/ # Reporte stock bajo
+│   │   ├── usuarios/  # Gestión usuarios (admin)
+│   │   └── admin/seed/ # Datos por defecto
+│   ├── login/          # Página login
+│   ├── clientes/       # UI clientes
+│   ├── productos/     # UI productos
+│   ├── ventas/        # UI ventas
+│   ├── nueva/        # Nueva venta
+│   ├── caja/        # Cierre caja
+│   ├── inventario/  # Reporte inventario
+│   └── usuarios/    # UI usuarios
 ├── components/
-│   ├── ui/                    # Componentes shadcn
-│   ├── auth/                  # Provider autenticación
-│   ├── layout.tsx             # Layout principal (nav)
-│   ├── barcode-scanner.tsx    # Escáner códigos de barra
-│   └── modal.tsx              # Modal reutilizable
+│   ├── ui/              # Componentes shadcn/ui
+│   ├── layout.tsx        # Layout principal + nav
+│   ├── barcode-scanner.tsx # Escáner códigos
+│   └── modal.tsx        # Modal reutilizable
 └── lib/
-    ├── prisma.ts              # Cliente Prisma
-    ├── auth.ts                # Utilidad JWT
-    └── pdf.ts                 # Generación PDF
+    ├── prisma.ts      # Cliente Prisma (Neon)
+    ├── auth.ts      # Utilidad JWT
+    ├── pdf.ts      # Generación PDF
+    └── utils.ts    # Utilidades
 ```
 
 ## Modelos de Datos
 
-- **Usuario**: id, email, password, nombre, rol (ADMIN/USUARIO), activo
-- **Cliente**: nombre, email, telefono, direccion
-- **Categoria**: nombre, activo, usuarioId
-- **Producto**: nombre, precio, costo, stock, stockMinimo, codigoBarra, categoriaId, activo
-- **Venta**: numero, clienteId, usuarioId, subtotal, total, observaciones, estado (COMPLETADA/ANULADA)
-- **DetalleVenta**: ventaId, productoId, cantidad, precioUnitario, total
-- **CierreCaja**: usuarioId, fecha, total, ventas
+### Usuario
+- id, email, password, nombre, rol (ADMIN/USUARIO), activo
+
+### Cliente
+- id, nombre, email, telefono, direccion, usuarioId
+
+### Categoria
+- id, nombre, activo, usuarioId
+
+### Producto
+- id, nombre, descripcion, codigoBarra, stock (Float), tipo (AGUA/SODA/OTRO), presentacion
+- precio, permiteFraccion, unidadMedida (KG/L), activo, usuarioId, categoriaId
+
+### Venta
+- id, numero (unique), clienteId, usuarioId, subtotal, iva, total, observaciones, estado (COMPLETADA/ANULADA)
+
+### DetalleVenta
+- id, ventaId, productoId, cantidad (Float), precioUnitario, total
+
+### CierreCaja
+- id, fecha, usuarioId, totalVentas, cantidadVentas, detalles (JSON)
 
 ## Features Implementadas
 
 - Autenticación JWT con cookies httpOnly
 - Roles ADMIN y USUARIO
 - CRUD clientes, productos, categorías, ventas
-- Escaneo de códigos de barra (BarcodeScanner con Quagga2)
+- Escaneo de códigos de barras (html5-qrcode)
 - Stock automático en ventas (transacción atómica)
 - Cierre de caja con ventas del día
 - Exportación PDF del cierre
 - Reporte de inventario con stock bajo umbral
-- Datos por defecto: 14 categorías + 127 productos para usuarios nuevos
-- UI móvil-first (bottom nav en móvil, top tabs en PC)
+- Datos por defecto: 14 categorías + 127 productos
+- UI móvil-first (bottom nav móvil, top tabs PC)
+- **Venta por fracción**: productos KG/L con cantidad decimal
+- **Búsqueda dinámica**: filtro al escribir en nueva venta
 
 ## Autenticación
 
@@ -78,11 +94,11 @@ src/
 postgresql://neondb_owner:npg_X7rSOl2pLjPt@ep-floral-block-amkxw9i1-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require
 ```
 
-## Comandos
+## Scripts
 
 ```bash
 npm run dev         # Desarrollo
-npm run build       # Build producción
+npm run build      # Build producción
 npm run postinstall # Regenerar Prisma client
-npm run lint        # Linter
+npm run lint      # Linter
 ```
