@@ -42,10 +42,10 @@ export default function NuevaVentaPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [showProducto, setShowProducto] = useState(true);
   const [showScanner, setShowScanner] = useState(false);
   const [productosMap, setProductosMap] = useState<Map<number, Producto>>(new Map());
   const [busquedaTexto, setBusquedaTexto] = useState('');
+  const [mensajeExito, setMensajeExito] = useState('');
 
   const handleBarcodeScanned = async (decodedText: string) => {
     const found = productos.find(p => p.codigoBarra === decodedText);
@@ -56,6 +56,7 @@ export default function NuevaVentaPage() {
       setTimeout(() => setError(''), 3000);
     }
     setShowScanner(false);
+    setBusquedaTexto('');
   };
 
   useEffect(() => {
@@ -100,6 +101,8 @@ export default function NuevaVentaPage() {
         total: producto.precio 
       }]);
     }
+    setMensajeExito(`${producto.nombre} agregado`);
+    setTimeout(() => setMensajeExito(''), 2000);
   };
 
   const updateCantidad = (productoId: number, cantidad: number) => {
@@ -230,13 +233,14 @@ export default function NuevaVentaPage() {
               </div>
             )}
 
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-slate-900">Productos</h2>
-              <span className="text-sm text-slate-500">{productosFiltrados.length} disponibles</span>
-            </div>
+            {mensajeExito && (
+              <div className="p-2 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-600 text-sm mb-4">
+                {mensajeExito}
+              </div>
+            )}
 
-            {showProducto && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4 max-h-96 overflow-y-auto">
+            {busquedaTexto.length > 0 && productosFiltrados.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4 max-h-64 overflow-y-auto">
                 {productosFiltrados.map(producto => (
                   <button
                     key={producto.id}
@@ -255,15 +259,10 @@ export default function NuevaVentaPage() {
                 ))}
               </div>
             )}
-
-            {!showProducto && (
+            {busquedaTexto.length === 0 && (
               <div className="text-center py-8">
-                <ShoppingCart className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                <p className="text-slate-400">Selecciona productos para agregar</p>
-                <Button onClick={() => setShowProducto(true)} className="mt-4 bg-sky-500">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Ver Productos
-                </Button>
+                <Search className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-400">Escribe para buscar productos</p>
               </div>
             )}
           </CardContent>
