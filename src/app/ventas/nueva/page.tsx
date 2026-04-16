@@ -103,7 +103,7 @@ export default function NuevaVentaPage() {
   };
 
   const updateCantidad = (productoId: number, cantidad: number) => {
-    if (cantidad <= 0) return;
+    if (cantidad < 0) return;
     setDetalles(detalles.map(d => 
       d.productoId === productoId 
         ? { ...d, cantidad, total: cantidad * d.precioUnitario }
@@ -297,14 +297,18 @@ export default function NuevaVentaPage() {
                           <input
                             type="number"
                             step="0.01"
-                            min="0.01"
-                            value={detalle.cantidad}
+                            min="0"
+                            placeholder="0"
+                            value={detalle.cantidad || ''}
                             onChange={e => {
                               const val = parseFloat(e.target.value);
-                              if (val > 0) {
+                              if (isNaN(val) || val === 0) {
+                                updateCantidad(detalle.productoId, 0);
+                              } else {
                                 updateCantidad(detalle.productoId, val);
                               }
                             }}
+                            onFocus={e => e.target.select()}
                             className="w-20 h-9 rounded-lg border border-slate-200 px-2 text-center font-medium"
                           />
                         ) : (
