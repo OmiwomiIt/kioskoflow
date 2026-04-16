@@ -4,34 +4,6 @@ import { getUserFromRequest } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
-async function generatePDF(presupuesto: any) {
-  const { generatePDF } = await import('@/lib/pdf');
-  return generatePDF({
-    numero: presupuesto.numero,
-    createdAt: presupuesto.createdAt,
-    cliente: {
-      nombre: presupuesto.cliente.nombre,
-      email: presupuesto.cliente.email,
-      telefono: presupuesto.cliente.telefono,
-      direccion: presupuesto.cliente.direccion,
-    },
-    detalles: presupuesto.detalles.map((d: any) => ({
-      cantidad: d.cantidad,
-      producto: {
-        nombre: d.producto.nombre,
-        presentacion: d.producto.presentacion,
-      },
-      precioUnitario: d.precioUnitario,
-      total: d.total,
-    })),
-    subtotal: presupuesto.subtotal,
-    iva: presupuesto.iva,
-    total: presupuesto.total,
-    observaciones: presupuesto.observaciones,
-    estado: presupuesto.estado,
-  });
-}
-
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -44,7 +16,7 @@ export async function GET(
 
     const { id } = await params;
     
-    const presupuesto = await prisma.presupuesto.findFirst({
+    const venta = await prisma.venta.findFirst({
       where: { id: parseInt(id), usuarioId: user.id },
       include: {
         cliente: true,
@@ -52,16 +24,74 @@ export async function GET(
       },
     });
 
-    if (!presupuesto) {
-      return NextResponse.json({ error: 'Presupuesto no encontrado' }, { status: 404 });
+    if (!venta) {
+      return NextResponse.json({ error: 'Venta no encontrada' }, { status: 404 });
     }
 
-    const doc = await generatePDF(presupuesto);
+    const { jsPDF } = await import('jspdf');
+    const doc = new jsPDF();
+
+    doc.setFontSize(20);
+    doc.text('VENTA', 105, 20, { align: 'center' });
     
-    return new NextResponse(doc.output('blob'), {
+    doc.setFontSize(12);
+    doc.text(`Número: ${venta.numero}`, 20, 35);
+    doc.text(`Fecha: ${new Date(venta.createdAt).toLocaleString('es-AR')}`, 20, 42);
+    if (venta.cliente) {
+      doc.text(`Cliente: ${venta.cliente.nombre}`, 20, 49);
+    }
+    doc.text(`Total: $AR ${venta.total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}`, 20, 56);
+    doc.text(`Estado: ${venta.estado}`, 20, 63);
+
+    doc.setFontSize(14);
+    doc.text('Detalle:', 20, 80);
+
+    doc.setFontSize(10);
+    let y = 90;
+    doc.text('Producto', 20, y);
+    doc.text('Cantidad', 120, y, { align: 'right' });
+    doc.text('Total', 170, y, { align: 'right' });
+    y += 5;
+    doc.line(20, y, 190, y);
+    y += 5;
+
+    for (const detalle of venta.detalles) {
+      if (y > 270) {
+        doc.addPage();
+        y = 20;
+      }
+      const nombre = `${detalle.producto.nombre} (${detalle.producto.presentacion})`.substring(0, 40);
+      const detalleTotal = detalle.cantidad * detalle.producto.precio;
+      doc.text(nombre, 20, y);
+      doc.text(detalle.cantidad.toString(), 120, y, { align: 'right' });
+      doc.text(`$AR ${detalleTotal.toLocaleString('es-AR', { minimumFractionDigits: 2 })}`, 170, y, { align: 'right' });
+      y += 7;
+    }
+
+    y += 5;
+    doc.line(20, y, 190, y);
+    y += 7;
+    doc.setFontSize(12);
+    doc.text('TOTAL', 20, y);
+    doc.text(`$AR ${venta.total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}`, 170, y, { align: 'right' });
+
+    if (venta.observaciones) {
+      y += 15;
+      doc.setFontSize(10);
+      doc.text('Observaciones:', 20, y);
+      y += 5;
+      doc.text(venta.observaciones, 20, y);
+    }
+
+    doc.setFontSize(8);
+    doc.text(`KioskoFlow - ${new Date().toLocaleDateString('es-AR')}`, 105, 285, { align: 'center' });
+
+    const pdfOutput = doc.output('blob');
+    
+    return new NextResponse(pdfOutput, {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="presupuesto-${presupuesto.numero}.pdf"`,
+        'Content-Disposition': `attachment; filename="venta-${venta.numero}.pdf"`,
       },
     });
   } catch (error) {

@@ -66,8 +66,18 @@ export async function POST(request: Request) {
   const numero = await generateNumero(user.id);
   
   let total = 0;
+  const detallesConPrecio: any[] = [];
+  
   for (const item of data.detalles) {
-    total += item.cantidad * item.precioUnitario;
+    const producto = await prisma.producto.findUnique({ where: { id: item.productoId } });
+    if (producto) {
+      const itemTotal = item.cantidad * producto.precio;
+      total += itemTotal;
+      detallesConPrecio.push({
+        productoId: item.productoId,
+        cantidad: item.cantidad,
+      });
+    }
   }
 
   const venta = await prisma.$transaction(async (tx: typeof prisma) => {
@@ -86,18 +96,11 @@ export async function POST(request: Request) {
         numero,
         clienteId: data.clienteId || null,
         usuarioId: user.id,
-        subtotal: total,
-        iva: 0,
         total,
         observaciones: data.observaciones || null,
         estado: 'COMPLETADA',
         detalles: {
-          create: data.detalles.map((item: any) => ({
-            productoId: item.productoId,
-            cantidad: item.cantidad,
-            precioUnitario: item.precioUnitario,
-            total: item.cantidad * item.precioUnitario,
-          })),
+          create: detallesConPrecio,
         },
       },
       include: {

@@ -31,8 +31,6 @@ interface DetalleItem {
   productoId: number;
   productoNombre: string;
   cantidad: number;
-  precioUnitario: number;
-  total: number;
 }
 
 export default function NuevaVentaPage() {
@@ -46,6 +44,18 @@ export default function NuevaVentaPage() {
   const [productosMap, setProductosMap] = useState<Map<number, Producto>>(new Map());
   const [busquedaTexto, setBusquedaTexto] = useState('');
   const [mensajeExito, setMensajeExito] = useState('');
+
+  const getProducto = (id: number) => productosMap.get(id);
+
+  const getDetalleTotal = (productoId: number, cantidad: number) => {
+    const p = getProducto(productoId);
+    return p ? cantidad * p.precio : 0;
+  };
+
+  const getDetallePrecio = (productoId: number) => {
+    const p = getProducto(productoId);
+    return p ? p.precio : 0;
+  };
 
   const handleBarcodeScanned = async (decodedText: string) => {
     const found = productos.find(p => p.codigoBarra === decodedText);
@@ -89,16 +99,14 @@ export default function NuevaVentaPage() {
       const incremento = producto.permiteFraccion ? 0.5 : 1;
       setDetalles(detalles.map(d => 
         d.productoId === producto.id 
-          ? { ...d, cantidad: d.cantidad + incremento, total: (d.cantidad + incremento) * d.precioUnitario }
+          ? { ...d, cantidad: d.cantidad + incremento }
           : d
       ));
     } else {
       setDetalles([...detalles, { 
         productoId: producto.id, 
         productoNombre: `${producto.nombre} (${producto.presentacion})`,
-        cantidad: 1, 
-        precioUnitario: producto.precio, 
-        total: producto.precio 
+        cantidad: 1,
       }]);
     }
     setMensajeExito(`${producto.nombre} agregado`);
@@ -109,7 +117,7 @@ export default function NuevaVentaPage() {
     if (cantidad < 0) return;
     setDetalles(detalles.map(d => 
       d.productoId === productoId 
-        ? { ...d, cantidad, total: cantidad * d.precioUnitario }
+        ? { ...d, cantidad }
         : d
     ));
   };
@@ -118,7 +126,7 @@ export default function NuevaVentaPage() {
     setDetalles(detalles.filter(d => d.productoId !== productoId));
   };
 
-  const total = detalles.reduce((sum, d) => sum + d.total, 0);
+  const total = detalles.reduce((sum, d) => sum + getDetalleTotal(d.productoId, d.cantidad), 0);
 
   async function handleSave() {
     if (detalles.length === 0) return;
@@ -330,7 +338,7 @@ export default function NuevaVentaPage() {
                       </div>
                       <div className="w-24 text-right">
                         <p className="font-medium">
-                          $AR {detalle.total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                          $AR {getDetalleTotal(detalle.productoId, detalle.cantidad).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                         </p>
                       </div>
                       <button

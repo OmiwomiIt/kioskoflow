@@ -54,7 +54,6 @@ model Cliente {
 model Producto {
   id            Int                 @id @default(autoincrement())
   nombre        String
-  descripcion   String?
   codigoBarra   String?
   stock         Float               @default(0)
   tipo          TipoProducto
@@ -70,6 +69,9 @@ model Producto {
   createdAt     DateTime            @default(now())
   updatedAt     DateTime            @updatedAt
   detalles      DetalleVenta[]
+
+  @@index([categoriaId])
+  @@index([activo])
 }
 
 enum TipoProducto {
@@ -85,14 +87,15 @@ model Venta {
   cliente       Cliente?      @relation(fields: [clienteId], references: [id])
   usuarioId     Int
   usuario       Usuario       @relation(fields: [usuarioId], references: [id])
-  subtotal      Float
-  iva          Float
-  total        Float
+  total         Float
   observaciones String?
   estado       EstadoVenta   @default(COMPLETADA)
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   detalles     DetalleVenta[]
+
+  @@index([createdAt])
+  @@index([estado])
 }
 
 enum EstadoVenta {
@@ -107,8 +110,6 @@ model DetalleVenta {
   productoId     Int
   producto       Producto    @relation(fields: [productoId], references: [id])
   cantidad       Float
-  precioUnitario Float
-  total          Float
 }
 
 model CierreCaja {

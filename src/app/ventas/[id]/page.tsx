@@ -9,17 +9,13 @@ import { ArrowLeft, Download } from 'lucide-react';
 
 interface Detalle {
   cantidad: number;
-  producto: { nombre: string; presentacion: string };
-  precioUnitario: number;
-  total: number;
+  producto: { nombre: string; presentacion: string; precio: number };
 }
 
 interface Venta {
   id: number;
   numero: string;
   estado: 'COMPLETADA' | 'ANULADA';
-  subtotal: number;
-  iva: number;
   total: number;
   observaciones: string | null;
   createdAt: string;
@@ -64,7 +60,7 @@ export default function VerVentaPage({ params }: { params: Promise<{ id: string 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
       </div>
     );
   }
@@ -72,7 +68,7 @@ export default function VerVentaPage({ params }: { params: Promise<{ id: string 
   if (!venta) {
     return (
       <div className="text-center py-8">
-        <p className="text-slate-400">Venta no encontrada</p>
+        <p className="text-stone-400">Venta no encontrada</p>
         <Button variant="outline" className="mt-4" onClick={() => router.push('/ventas')}>
           <ArrowLeft className="h-4 w-4 mr-2" /> Volver
         </Button>
@@ -84,11 +80,11 @@ export default function VerVentaPage({ params }: { params: Promise<{ id: string 
     <div className="space-y-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-4">
         <Button variant="ghost" onClick={() => router.push('/ventas')}>
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-4 h-4" />
         </Button>
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Venta {venta.numero}</h1>
-          <p className="text-slate-500">Fecha: {new Date(venta.createdAt).toLocaleDateString('es-AR')}</p>
+          <h1 className="text-2xl font-bold text-stone-800">Venta {venta.numero}</h1>
+          <p className="text-stone-500 text-sm">Fecha: {new Date(venta.createdAt).toLocaleDateString('es-AR')}</p>
         </div>
       </div>
 
@@ -113,22 +109,25 @@ export default function VerVentaPage({ params }: { params: Promise<{ id: string 
               <TableRow>
                 <TableHead>Producto</TableHead>
                 <TableHead>Cantidad</TableHead>
-                <TableHead>Precio Unitario</TableHead>
+                <TableHead>Precio</TableHead>
                 <TableHead>Total</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {venta.detalles.map((d, i) => (
-                <TableRow key={i}>
-                  <TableCell>
-                    <div className="font-medium">{d.producto.nombre}</div>
-                    <div className="text-xs text-slate-400">{d.producto.presentacion}</div>
-                  </TableCell>
-                  <TableCell>{d.cantidad}</TableCell>
-                  <TableCell>$AR {d.precioUnitario.toFixed(2)}</TableCell>
-                  <TableCell>$AR {d.total.toFixed(2)}</TableCell>
-                </TableRow>
-              ))}
+              {venta.detalles.map((d, i) => {
+                const detalleTotal = d.cantidad * d.producto.precio;
+                return (
+                  <TableRow key={i}>
+                    <TableCell>
+                      <div className="font-medium text-stone-800">{d.producto.nombre}</div>
+                      <div className="text-xs text-stone-400">{d.producto.presentacion}</div>
+                    </TableCell>
+                    <TableCell className="text-stone-600">{d.cantidad}</TableCell>
+                    <TableCell className="text-stone-600">$AR {d.producto.precio.toFixed(2)}</TableCell>
+                    <TableCell className="font-medium text-stone-800">$AR {detalleTotal.toFixed(2)}</TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </CardContent>
@@ -137,8 +136,8 @@ export default function VerVentaPage({ params }: { params: Promise<{ id: string 
       <Card>
         <CardContent className="pt-6">
           <div className="flex justify-between font-bold text-lg">
-            <span>Total</span>
-            <span>$AR {venta.total.toFixed(2)}</span>
+            <span className="text-stone-600">Total</span>
+            <span className="text-stone-800">$AR {venta.total.toFixed(2)}</span>
           </div>
         </CardContent>
       </Card>
@@ -149,7 +148,7 @@ export default function VerVentaPage({ params }: { params: Promise<{ id: string 
             <CardTitle>Observaciones</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-slate-600">{venta.observaciones}</p>
+            <p className="text-stone-600">{venta.observaciones}</p>
           </CardContent>
         </Card>
       )}

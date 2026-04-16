@@ -73,11 +73,12 @@ export async function POST(request: Request) {
     totalVentas += venta.total;
     for (const detalle of venta.detalles) {
       const nombre = detalle.producto.nombre + ' (' + detalle.producto.presentacion + ')';
+      const detalleTotal = detalle.cantidad * detalle.producto.precio;
       if (!productoCantidades[nombre]) {
         productoCantidades[nombre] = { nombre, cantidad: 0, total: 0 };
       }
       productoCantidades[nombre].cantidad += detalle.cantidad;
-      productoCantidades[nombre].total += detalle.total;
+      productoCantidades[nombre].total += detalleTotal;
     }
   }
 
