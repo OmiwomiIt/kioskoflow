@@ -25,6 +25,8 @@ interface Producto {
   precio: number;
   activo: boolean;
   categoria: Categoria | null;
+  permiteFraccion: boolean;
+  unidadMedida: string;
 }
 
 export default function ProductosPage() {
@@ -36,7 +38,7 @@ export default function ProductosPage() {
   const [showModal, setShowModal] = useState(false);
   const [showCatModal, setShowCatModal] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
-  const [form, setForm] = useState({ nombre: '', descripcion: '', codigoBarra: '', stock: '', presentacion: '', precio: '', categoriaId: '' });
+  const [form, setForm] = useState({ nombre: '', descripcion: '', codigoBarra: '', stock: '', presentacion: '', precio: '', categoriaId: '', permiteFraccion: false, unidadMedida: 'UN' });
   const [catForm, setCatForm] = useState({ nombre: '' });
   const [saving, setSaving] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
@@ -79,11 +81,13 @@ export default function ProductosPage() {
       nombre: form.nombre,
       descripcion: form.descripcion,
       codigoBarra: form.codigoBarra || null,
-      stock: form.stock ? parseInt(form.stock) : 0,
+      stock: form.stock ? parseFloat(form.stock) : 0,
       presentacion: form.presentacion,
       precio: parseFloat(form.precio),
       tipo: 'OTRO',
       categoriaId: form.categoriaId ? parseInt(form.categoriaId) : null,
+      permiteFraccion: form.permiteFraccion,
+      unidadMedida: form.permiteFraccion ? form.unidadMedida : 'UN',
     };
     const method = editId ? 'PUT' : 'POST';
     const url = editId ? `/api/productos/${editId}` : '/api/productos';
@@ -95,7 +99,7 @@ export default function ProductosPage() {
     const res = await fetch('/api/productos');
     setProductos(await res.json());
     setShowModal(false);
-    setForm({ nombre: '', descripcion: '', codigoBarra: '', stock: '', presentacion: '', precio: '', categoriaId: '' });
+    setForm({ nombre: '', descripcion: '', codigoBarra: '', stock: '', presentacion: '', precio: '', categoriaId: '', permiteFraccion: false, unidadMedida: 'UN' });
     setEditId(null);
     setSaving(false);
   }
@@ -149,6 +153,8 @@ export default function ProductosPage() {
       presentacion: producto.presentacion,
       precio: producto.precio.toString(),
       categoriaId: producto.categoria?.id?.toString() || '',
+      permiteFraccion: producto.permiteFraccion || false,
+      unidadMedida: producto.unidadMedida || 'UN',
     });
     setShowModal(true);
   }
@@ -178,7 +184,7 @@ export default function ProductosPage() {
             <FolderOpen className="h-4 w-4 mr-2" />
             Categorías
           </Button>
-          <Button onClick={() => { setEditId(null); setForm({ nombre: '', descripcion: '', codigoBarra: '', stock: '', presentacion: '', precio: '', categoriaId: '' }); setShowModal(true); }} className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700">
+          <Button onClick={() => { setEditId(null); setForm({ nombre: '', descripcion: '', codigoBarra: '', stock: '', presentacion: '', precio: '', categoriaId: '', permiteFraccion: false, unidadMedida: 'UN' }); setShowModal(true); }} className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700">
             <Plus className="h-4 w-4 mr-2" /> Nuevo Producto
           </Button>
         </div>
@@ -246,6 +252,11 @@ export default function ProductosPage() {
                     <p className="text-sm text-slate-500">{producto.presentacion}</p>
                     {producto.categoria && (
                       <span className="text-xs text-slate-400">{producto.categoria.nombre}</span>
+                    )}
+                    {producto.permiteFraccion && (
+                      <span className="ml-2 px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full">
+                        {producto.unidadMedida}
+                      </span>
                     )}
                   </div>
                   <div className="mt-4 flex items-center justify-between">
@@ -326,12 +337,42 @@ export default function ProductosPage() {
             <Label className="text-slate-700">Stock</Label>
             <Input
               type="number"
+              step="0.01"
               value={form.stock}
               onChange={e => setForm({ ...form, stock: e.target.value })}
               placeholder="Cantidad en inventario"
               className="h-12 mt-1"
             />
           </div>
+          <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+            <input
+              type="checkbox"
+              id="permiteFraccion"
+              checked={form.permiteFraccion}
+              onChange={e => setForm({ ...form, permiteFraccion: e.target.checked })}
+              className="w-5 h-5 rounded border-slate-300"
+            />
+            <div className="flex-1">
+              <Label htmlFor="permiteFraccion" className="text-slate-700 font-medium">Venta por fracción</Label>
+              <p className="text-xs text-slate-500">Permite vender por kilos, litros o unidades sueltas</p>
+            </div>
+          </div>
+          {form.permiteFraccion && (
+            <div>
+              <Label className="text-slate-700">Unidad de Medida</Label>
+              <select
+                value={form.unidadMedida}
+                onChange={e => setForm({ ...form, unidadMedida: e.target.value })}
+                className="h-12 mt-1 w-full rounded-lg border border-slate-200 px-3"
+              >
+                <option value="UN">Unidad (UN)</option>
+                <option value="KG">Kilogramo (KG)</option>
+                <option value="L">Litro (L)</option>
+                <option value="G">Gramo (G)</option>
+                <option value="ML">Mililitro (ML)</option>
+              </select>
+            </div>
+          )}
           <div>
             <Label className="text-slate-700">Descripción</Label>
             <Input

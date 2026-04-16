@@ -52,22 +52,24 @@ model Cliente {
 }
 
 model Producto {
-  id           Int                 @id @default(autoincrement())
-  nombre       String
-  descripcion  String?
-  codigoBarra  String?
-  stock       Int                 @default(0)
-  tipo         TipoProducto
-  presentacion String
-  precio      Float
-  activo      Boolean             @default(true)
-  usuarioId   Int
-  usuario     Usuario             @relation(fields: [usuarioId], references: [id])
-  categoriaId Int?
-  categoria   Categoria?          @relation(fields: [categoriaId], references: [id])
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
-  detalles    DetalleVenta[]
+  id            Int                 @id @default(autoincrement())
+  nombre        String
+  descripcion   String?
+  codigoBarra   String?
+  stock         Float               @default(0)
+  tipo          TipoProducto
+  presentacion  String
+  precio        Float
+  permiteFraccion Boolean           @default(false)
+  unidadMedida  String              @default("UN")
+  activo        Boolean             @default(true)
+  usuarioId     Int
+  usuario       Usuario             @relation(fields: [usuarioId], references: [id])
+  categoriaId   Int?
+  categoria     Categoria?          @relation(fields: [categoriaId], references: [id])
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  detalles      DetalleVenta[]
 }
 
 enum TipoProducto {
@@ -99,14 +101,14 @@ enum EstadoVenta {
 }
 
 model DetalleVenta {
-  id            Int         @id @default(autoincrement())
-  ventaId       Int
-  venta         Venta       @relation(fields: [ventaId], references: [id], onDelete: Cascade)
-  productoId    Int
-  producto      Producto    @relation(fields: [productoId], references: [id])
-  cantidad     Int
+  id             Int         @id @default(autoincrement())
+  ventaId        Int
+  venta          Venta       @relation(fields: [ventaId], references: [id], onDelete: Cascade)
+  productoId     Int
+  producto       Producto    @relation(fields: [productoId], references: [id])
+  cantidad       Float
   precioUnitario Float
-  total        Float
+  total          Float
 }
 
 model CierreCaja {

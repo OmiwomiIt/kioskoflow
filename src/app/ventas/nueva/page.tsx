@@ -23,6 +23,8 @@ interface Producto {
   precio: number;
   activo: boolean;
   categoria: { nombre: string } | null;
+  permiteFraccion: boolean;
+  unidadMedida: string;
 }
 
 interface DetalleItem {
@@ -40,40 +42,53 @@ export default function NuevaVentaPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [showProducto, setShowProducto] = useState(false);
-  const [codigoBusqueda, setCodigoBusqueda] = useState('');
+  const [showProducto, setShowProducto] = useState(true);
   const [showScanner, setShowScanner] = useState(false);
+  const [productosMap, setProductosMap] = useState<Map<number, Producto>>(new Map());
+  const [busquedaTexto, setBusquedaTexto] = useState('');
 
   const handleBarcodeScanned = async (decodedText: string) => {
-    await buscarPorCodigo(decodedText);
+    const found = productos.find(p => p.codigoBarra === decodedText);
+    if (found) {
+      addProducto(found);
+    } else {
+      setError('Producto no encontrado');
+      setTimeout(() => setError(''), 3000);
+    }
     setShowScanner(false);
   };
 
   useEffect(() => {
     fetch('/api/productos?activo=true').then(r => r.json()).then(data => {
       setProductos(data);
+      const map = new Map();
+      data.forEach((p: Producto) => map.set(p.id, p));
+      setProductosMap(map);
       setLoading(false);
     });
   }, []);
 
-  const buscarPorCodigo = async (codigo: string) => {
-    const res = await fetch(`/api/productos?activo=true&codigoBarra=${encodeURIComponent(codigo)}`);
-    const data = await res.json();
-    if (data.length > 0) {
-      addProducto(data[0]);
+  const buscarPorTexto = (texto: string) => {
+    const found = productosFiltrados.find(p => 
+      p.codigoBarra === texto || 
+      p.nombre.toLowerCase() === texto.toLowerCase()
+    );
+    if (found) {
+      addProducto(found);
+      setBusquedaTexto('');
     } else {
       setError('Producto no encontrado');
       setTimeout(() => setError(''), 3000);
     }
-    setCodigoBusqueda('');
   };
 
   const addProducto = (producto: Producto) => {
     const existente = detalles.find(d => d.productoId === producto.id);
     if (existente) {
+      const incremento = producto.permiteFraccion ? 0.5 : 1;
       setDetalles(detalles.map(d => 
         d.productoId === producto.id 
-          ? { ...d, cantidad: d.cantidad + 1, total: (d.cantidad + 1) * d.precioUnitario }
+          ? { ...d, cantidad: d.cantidad + incremento, total: (d.cantidad + incremento) * d.precioUnitario }
           : d
       ));
     } else {
@@ -88,10 +103,13 @@ export default function NuevaVentaPage() {
   };
 
   const updateCantidad = (productoId: number, cantidad: number) => {
-    if (cantidad < 1) return;
+    if (cantidad <= 0) return;
+    const producto = productosMap.get(productoId);
+    const step = producto?.permiteFraccion ? 0.5 : 1;
+    const nuevaCantidad = Math.round(cantidad / step) * step;
     setDetalles(detalles.map(d => 
       d.productoId === productoId 
-        ? { ...d, cantidad, total: cantidad * d.precioUnitario }
+        ? { ...d, cantidad: nuevaCantidad, total: nuevaCantidad * d.precioUnitario }
         : d
     ));
   };
@@ -128,7 +146,12 @@ export default function NuevaVentaPage() {
     }
   }
 
-  const productosActivos = productos.filter(p => p.activo);
+  const productosFiltrados = productos.filter(p => p.activo && 
+    (busquedaTexto === '' || 
+     p.nombre.toLowerCase().includes(busquedaTexto.toLowerCase()) ||
+     p.codigoBarra?.includes(busquedaTexto) ||
+     p.presentacion.toLowerCase().includes(busquedaTexto.toLowerCase()))
+  );
 
   const getTipoIcon = (tipo: string) => {
     switch (tipo) {
@@ -175,10 +198,27 @@ export default function NuevaVentaPage() {
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
-                  placeholder="Buscar por código de barras..."
-                  value={codigoBusqueda}
-                  onChange={e => setCodigoBusqueda(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && buscarPorCodigo(codigoBusqueda)}
+                  placeholder="Buscar por código o nombre..."
+                  value={busquedaTexto}
+                  onChange={e => setBusquedaTexto(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      const txt = busquedaTexto.trim();
+                      if (txt) {
+                        const found = productosFiltrados.find(p => 
+                          p.codigoBarra === txt || 
+                          p.nombre.toLowerCase() === txt.toLowerCase()
+                        );
+                        if (found) {
+                          addProducto(found);
+                          setBusquedaTexto('');
+                        } else {
+                          setError('Producto no encontrado');
+                          setTimeout(() => setError(''), 3000);
+                        }
+                      }
+                    }
+                  }}
                   className="pl-10 h-10"
                 />
               </div>
@@ -195,15 +235,12 @@ export default function NuevaVentaPage() {
 
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-slate-900">Productos</h2>
-              <Button onClick={() => setShowProducto(!showProducto)} size="sm">
-                <Plus className="w-4 h-4 mr-1" />
-                Agregar
-              </Button>
+              <span className="text-sm text-slate-500">{productosFiltrados.length} disponibles</span>
             </div>
 
             {showProducto && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
-                {productosActivos.map(producto => (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4 max-h-96 overflow-y-auto">
+                {productosFiltrados.map(producto => (
                   <button
                     key={producto.id}
                     onClick={() => addProducto(producto)}
@@ -246,39 +283,50 @@ export default function NuevaVentaPage() {
               </div>
             ) : (
               <div className="space-y-3">
-                {detalles.map(detalle => (
-                  <div key={detalle.productoId} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
-                    <div className="flex-1">
-                      <p className="font-medium text-slate-900">{detalle.productoNombre}</p>
-                    </div>
-                    <div className="flex items-center gap-3">
+                {detalles.map(detalle => {
+                  const producto = productosMap.get(detalle.productoId);
+                  const permiteFraccion = producto?.permiteFraccion;
+                  return (
+                    <div key={detalle.productoId} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                      <div className="flex-1">
+                        <p className="font-medium text-slate-900">{detalle.productoNombre}</p>
+                        {permiteFraccion && producto?.unidadMedida && (
+                          <p className="text-xs text-slate-400">{producto.unidadMedida}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => updateCantidad(detalle.productoId, detalle.cantidad - (permiteFraccion ? 0.5 : 1))}
+                          className="w-8 h-8 rounded-lg bg-slate-200 hover:bg-slate-300 flex items-center justify-center"
+                        >
+                          -
+                        </button>
+                        <span className="w-12 text-center font-medium">
+                          {permiteFraccion 
+                            ? detalle.cantidad.toFixed(1).replace('.0', '')
+                            : detalle.cantidad}
+                        </span>
+                        <button
+                          onClick={() => updateCantidad(detalle.productoId, detalle.cantidad + (permiteFraccion ? 0.5 : 1))}
+                          className="w-8 h-8 rounded-lg bg-slate-200 hover:bg-slate-300 flex items-center justify-center"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <div className="w-24 text-right">
+                        <p className="font-medium">
+                          $AR {detalle.total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                        </p>
+                      </div>
                       <button
-                        onClick={() => updateCantidad(detalle.productoId, detalle.cantidad - 1)}
-                        className="w-8 h-8 rounded-lg bg-slate-200 hover:bg-slate-300 flex items-center justify-center"
+                        onClick={() => removeProducto(detalle.productoId)}
+                        className="p-2 hover:bg-red-50 rounded-lg"
                       >
-                        -
-                      </button>
-                      <span className="w-8 text-center font-medium">{detalle.cantidad}</span>
-                      <button
-                        onClick={() => updateCantidad(detalle.productoId, detalle.cantidad + 1)}
-                        className="w-8 h-8 rounded-lg bg-slate-200 hover:bg-slate-300 flex items-center justify-center"
-                      >
-                        +
+                        <Trash2 className="w-4 h-4 text-red-500" />
                       </button>
                     </div>
-                    <div className="w-24 text-right">
-                      <p className="font-medium">
-                        $AR {detalle.total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => removeProducto(detalle.productoId)}
-                      className="p-2 hover:bg-red-50 rounded-lg"
-                    >
-                      <Trash2 className="w-4 h-4 text-red-500" />
-                    </button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
