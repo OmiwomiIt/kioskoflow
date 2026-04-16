@@ -286,32 +286,47 @@ export default function NuevaVentaPage() {
                 {detalles.map(detalle => {
                   const producto = productosMap.get(detalle.productoId);
                   const permiteFraccion = producto?.permiteFraccion;
+                  const unidadMedida = producto?.unidadMedida;
                   return (
                     <div key={detalle.productoId} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
                       <div className="flex-1">
                         <p className="font-medium text-slate-900">{detalle.productoNombre}</p>
-                        {permiteFraccion && producto?.unidadMedida && (
-                          <p className="text-xs text-slate-400">{producto.unidadMedida}</p>
+                        {permiteFraccion && unidadMedida && (
+                          <p className="text-xs text-slate-400">{unidadMedida}</p>
                         )}
                       </div>
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => updateCantidad(detalle.productoId, detalle.cantidad - (permiteFraccion ? 0.5 : 1))}
-                          className="w-8 h-8 rounded-lg bg-slate-200 hover:bg-slate-300 flex items-center justify-center"
-                        >
-                          -
-                        </button>
-                        <span className="w-12 text-center font-medium">
-                          {permiteFraccion 
-                            ? detalle.cantidad.toFixed(1).replace('.0', '')
-                            : detalle.cantidad}
-                        </span>
-                        <button
-                          onClick={() => updateCantidad(detalle.productoId, detalle.cantidad + (permiteFraccion ? 0.5 : 1))}
-                          className="w-8 h-8 rounded-lg bg-slate-200 hover:bg-slate-300 flex items-center justify-center"
-                        >
-                          +
-                        </button>
+                      <div className="flex items-center gap-2">
+                        {permiteFraccion ? (
+                          <input
+                            type="number"
+                            step="0.25"
+                            min="0.25"
+                            value={detalle.cantidad}
+                            onChange={e => {
+                              const val = parseFloat(e.target.value);
+                              if (val > 0) {
+                                updateCantidad(detalle.productoId, val);
+                              }
+                            }}
+                            className="w-20 h-9 rounded-lg border border-slate-200 px-2 text-center font-medium"
+                          />
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => updateCantidad(detalle.productoId, detalle.cantidad - 1)}
+                              className="w-8 h-8 rounded-lg bg-slate-200 hover:bg-slate-300 flex items-center justify-center"
+                            >
+                              -
+                            </button>
+                            <span className="w-8 text-center font-medium">{detalle.cantidad}</span>
+                            <button
+                              onClick={() => updateCantidad(detalle.productoId, detalle.cantidad + 1)}
+                              className="w-8 h-8 rounded-lg bg-slate-200 hover:bg-slate-300 flex items-center justify-center"
+                            >
+                              +
+                            </button>
+                          </>
+                        )}
                       </div>
                       <div className="w-24 text-right">
                         <p className="font-medium">

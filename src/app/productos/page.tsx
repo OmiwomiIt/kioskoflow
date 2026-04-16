@@ -365,11 +365,8 @@ export default function ProductosPage() {
                 onChange={e => setForm({ ...form, unidadMedida: e.target.value })}
                 className="h-12 mt-1 w-full rounded-lg border border-slate-200 px-3"
               >
-                <option value="UN">Unidad (UN)</option>
                 <option value="KG">Kilogramo (KG)</option>
                 <option value="L">Litro (L)</option>
-                <option value="G">Gramo (G)</option>
-                <option value="ML">Mililitro (ML)</option>
               </select>
             </div>
           )}
