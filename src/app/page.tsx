@@ -10,6 +10,7 @@ interface Stats {
   productos: number;
   ventas: number;
   ventasMes: number;
+  totalMes: number;
   ventasHoy: number;
   totalHoy: number;
 }
@@ -27,6 +28,7 @@ export default function Dashboard() {
     productos: 0,
     ventas: 0,
     ventasMes: 0,
+    totalMes: 0,
     ventasHoy: 0,
     totalHoy: 0,
   });
@@ -58,6 +60,7 @@ export default function Dashboard() {
         productos: productos.length,
         ventas: ventas.length,
         ventasMes: ventasDelMes.length,
+        totalMes: ventasDelMes.reduce((sum: number, v: any) => sum + v.total, 0),
         ventasHoy: ventasDeHoy.length,
         totalHoy: ventasDeHoy.reduce((sum: number, v: any) => sum + v.total, 0),
       });
@@ -71,7 +74,7 @@ export default function Dashboard() {
   const statCards = [
     { title: 'Clientes', value: stats.clientes, icon: Users, color: 'from-blue-500 to-blue-600', bgColor: 'bg-blue-500/10' },
     { title: 'Productos', value: stats.productos, icon: Package, color: 'from-emerald-500 to-emerald-600', bgColor: 'bg-emerald-500/10' },
-    { title: 'Ventas del Mes', value: stats.ventasMes, subtitle: `${stats.ventas} total`, icon: ShoppingCart, color: 'from-sky-500 to-sky-600', bgColor: 'bg-sky-500/10' },
+    { title: 'Ventas del Mes', value: `$AR ${stats.totalMes.toLocaleString('es-AR', { minimumFractionDigits: 2 })}`, subtitle: `${stats.ventasMes} ventas`, icon: ShoppingCart, color: 'from-sky-500 to-sky-600', bgColor: 'bg-sky-500/10' },
     { title: 'Hoy', value: `$AR ${stats.totalHoy.toLocaleString('es-AR', { minimumFractionDigits: 2 })}`, subtitle: `${stats.ventasHoy} ventas`, icon: DollarSign, color: 'from-emerald-500 to-emerald-600', bgColor: 'bg-emerald-500/10' },
   ];
 
