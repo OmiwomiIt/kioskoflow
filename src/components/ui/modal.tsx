@@ -41,7 +41,7 @@ export function Modal({ open, onOpenChange, onClose, children, title, className 
       <div className="fixed inset-0 bg-black/50" onClick={handleClose} />
       <div
         className={cn(
-          'relative z-50 w-full max-w-lg rounded-xl bg-white shadow-lg p-4 sm:p-6 mx-2 sm:mx-4 max-h-[90vh] overflow-y-auto',
+          'relative z-50 w-full max-w-lg rounded-xl bg-white shadow-lg p-4 sm:p-6 mx-2 sm:mx-4 max-h-[90vh] overflow-y-auto pb-24 lg:pb-6',
           className
         )}
       >
