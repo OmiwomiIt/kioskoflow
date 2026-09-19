@@ -7,71 +7,109 @@ datasource db {
 }
 
 model Usuario {
-  id           Int          @id @default(autoincrement())
-  email       String       @unique
-  password    String
-  nombre      String
-  rol         RolUsuario    @default(USUARIO)
-  activo      Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  productos   Producto[]
-  clientes    Cliente[]
-  ventas     Venta[]
-  cierres    CierreCaja[]
+  id         Int          @id @default(autoincrement())
+  email      String       @unique
+  password   String
+  nombre     String
+  rol        RolUsuario   @default(USUARIO)
+  activo     Boolean      @default(true)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
   categorias Categoria[]
-}
-
-enum RolUsuario {
-  ADMIN
-  USUARIO
+  cierres    CierreCaja[]
+  clientes   Cliente[]
+  productos  Producto[]
+  ventas     Venta[]
 }
 
 model Categoria {
   id        Int        @id @default(autoincrement())
   nombre    String
-  activo    Boolean   @default(true)
+  activo    Boolean    @default(true)
   usuarioId Int
-  usuario   Usuario   @relation(fields: [usuarioId], references: [id])
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  usuario   Usuario    @relation(fields: [usuarioId], references: [id])
   productos Producto[]
 }
 
 model Cliente {
-  id           Int       @id @default(autoincrement())
-  nombre       String
-  email        String?
-  telefono     String?
-  direccion    String?
-  usuarioId    Int
-  usuario      Usuario   @relation(fields: [usuarioId], references: [id])
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  ventas       Venta[]
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  email     String?
+  telefono  String?
+  direccion String?
+  usuarioId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+  ventas    Venta[]
 }
 
 model Producto {
-  id            Int                 @id @default(autoincrement())
-  nombre        String
-  codigoBarra   String?
-  stock         Float               @default(0)
-  tipo          TipoProducto
-  presentacion  String
-  precio        Float
-  permiteFraccion Boolean           @default(false)
-  unidadMedida  String              @default("UN")
-  activo        Boolean             @default(true)
-  usuarioId     Int
-  usuario       Usuario             @relation(fields: [usuarioId], references: [id])
-  categoriaId   Int?
-  categoria     Categoria?          @relation(fields: [categoriaId], references: [id])
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
-  detalles      DetalleVenta[]
+  id              Int            @id @default(autoincrement())
+  nombre          String
+  tipo            TipoProducto
+  presentacion    String
+  precio          Float
+  activo          Boolean        @default(true)
+  usuarioId       Int
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  categoriaId     Int?
+  codigoBarra     String?
+  stock           Float          @default(0)
+  permiteFraccion Boolean        @default(false)
+  unidadMedida    String         @default("UN")
+  detalles        DetalleVenta[]
+  categoria       Categoria?     @relation(fields: [categoriaId], references: [id])
+  usuario         Usuario        @relation(fields: [usuarioId], references: [id])
 
   @@index([categoriaId])
   @@index([activo])
+}
+
+model Venta {
+  id            Int            @id @default(autoincrement())
+  numero        String         @unique
+  clienteId     Int?
+  usuarioId     Int
+  total         Float
+  observaciones String?
+  estado        EstadoVenta    @default(COMPLETADA)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  detalles      DetalleVenta[]
+  cliente       Cliente?       @relation(fields: [clienteId], references: [id])
+  usuario       Usuario        @relation(fields: [usuarioId], references: [id])
+
+  @@index([createdAt])
+  @@index([estado])
+}
+
+model DetalleVenta {
+  id         Int      @id @default(autoincrement())
+  ventaId    Int
+  productoId Int
+  cantidad   Float
+  producto   Producto @relation(fields: [productoId], references: [id])
+  venta      Venta    @relation(fields: [ventaId], references: [id], onDelete: Cascade)
+}
+
+model CierreCaja {
+  id             Int      @id @default(autoincrement())
+  fecha          DateTime @default(now())
+  usuarioId      Int
+  totalVentas    Float
+  cantidadVentas Int
+  detalles       Json
+  createdAt      DateTime @default(now())
+  usuario        Usuario  @relation(fields: [usuarioId], references: [id])
+}
+
+enum RolUsuario {
+  ADMIN
+  USUARIO
 }
 
 enum TipoProducto {
@@ -80,45 +118,7 @@ enum TipoProducto {
   OTRO
 }
 
-model Venta {
-  id            Int           @id @default(autoincrement())
-  numero        String        @unique
-  clienteId     Int?
-  cliente       Cliente?      @relation(fields: [clienteId], references: [id])
-  usuarioId     Int
-  usuario       Usuario       @relation(fields: [usuarioId], references: [id])
-  total         Float
-  observaciones String?
-  estado       EstadoVenta   @default(COMPLETADA)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  detalles     DetalleVenta[]
-
-  @@index([createdAt])
-  @@index([estado])
-}
-
 enum EstadoVenta {
   COMPLETADA
   ANULADA
-}
-
-model DetalleVenta {
-  id             Int         @id @default(autoincrement())
-  ventaId        Int
-  venta          Venta       @relation(fields: [ventaId], references: [id], onDelete: Cascade)
-  productoId     Int
-  producto       Producto    @relation(fields: [productoId], references: [id])
-  cantidad       Float
-}
-
-model CierreCaja {
-  id            Int           @id @default(autoincrement())
-  fecha         DateTime       @default(now())
-  usuarioId     Int
-  usuario       Usuario       @relation(fields: [usuarioId], references: [id])
-  totalVentas   Float
-  cantidadVentas Int
-  detalles     Json
-  createdAt    DateTime      @default(now())
 }

@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -42,7 +41,6 @@ export default function ProductosPage() {
   const [catForm, setCatForm] = useState({ nombre: '' });
   const [saving, setSaving] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
-  const [scannerActive, setScannerActive] = useState(false);
 
   const handleScanBarcode = async () => {
     setShowScanner(true);
@@ -50,7 +48,6 @@ export default function ProductosPage() {
 
   const handleBarcodeScanned = async (decodedText: string) => {
     setForm({ ...form, codigoBarra: decodedText });
-    setScannerActive(false);
     setShowScanner(false);
   };
 
@@ -70,7 +67,13 @@ export default function ProductosPage() {
     .filter(p => p.nombre.toLowerCase().includes(search.toLowerCase()));
 
   const getCatColor = (index: number) => {
-    const colors = ['bg-blue-500', 'bg-emerald-500', 'bg-orange-500', 'bg-purple-500', 'bg-pink-500', 'bg-cyan-500'];
+    const colors = [
+      'bg-gradient-to-br from-orange-500 to-orange-600',
+      'bg-gradient-to-br from-stone-500 to-stone-600',
+      'bg-gradient-to-br from-amber-500 to-amber-600',
+      'bg-gradient-to-br from-violet-500 to-violet-600',
+      'bg-gradient-to-br from-emerald-500 to-emerald-600',
+    ];
     return colors[index % colors.length];
   };
 
@@ -161,30 +164,33 @@ export default function ProductosPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-sky-500"></div>
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="relative w-14 h-14">
+          <div className="absolute inset-0 rounded-full animate-spin border-2 border-orange-500/30"></div>
+          <div className="absolute inset-0 rounded-full border-2 border-orange-500/60"></div>
+        </div>
       </div>
     );
   }
 
   const filterButtons = [
-    { key: 'ALL', label: 'Todos', icon: Package },
-    ...categorias.map((c, i) => ({ key: c.id.toString(), label: c.nombre, color: getCatColor(i) })),
+    { key: 'ALL', label: 'Todos' },
+    ...categorias.map((c, i) => ({ key: c.id.toString(), label: c.nombre })),
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Productos</h1>
-          <p className="text-slate-500">{productos.length} productos en catálogo</p>
+          <h1 className="text-4xl font-bold text-stone-900 tracking-tight">Productos</h1>
+          <p className="text-stone-500 mt-1">{productos.length} productos en catálogo</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setShowCatModal(true)}>
             <FolderOpen className="h-4 w-4 mr-2" />
             Categorías
           </Button>
-          <Button onClick={() => { setEditId(null); setForm({ nombre: '', descripcion: '', codigoBarra: '', stock: '', presentacion: '', precio: '', categoriaId: '', permiteFraccion: false, unidadMedida: 'UN' }); setShowModal(true); }} className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700">
+          <Button onClick={() => { setEditId(null); setForm({ nombre: '', descripcion: '', codigoBarra: '', stock: '', presentacion: '', precio: '', categoriaId: '', permiteFraccion: false, unidadMedida: 'UN' }); setShowModal(true); }}>
             <Plus className="h-4 w-4 mr-2" /> Nuevo Producto
           </Button>
         </div>
@@ -192,55 +198,54 @@ export default function ProductosPage() {
 
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex gap-2 flex-wrap">
-          {filterButtons.map((btn, index) => (
+          {filterButtons.map((btn) => (
             <Button
               key={btn.key}
               variant={filter === btn.key ? 'default' : 'outline'}
               size="sm"
               onClick={() => setFilter(btn.key)}
-              className={filter === btn.key && btn.key !== 'ALL' ? (btn as any).color || 'bg-slate-700' : ''}
             >
               {btn.label}
             </Button>
           ))}
         </div>
         <div className="flex-1 relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400" />
           <Input
             placeholder="Buscar productos..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="pl-12 h-10 bg-white"
+            className="pl-12 h-11 bg-white"
           />
         </div>
       </div>
 
       {filtered.length === 0 ? (
-        <Card className="border-0 shadow-lg shadow-slate-200/50">
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-              <Package className="w-8 h-8 text-slate-400" />
+        <div className="border-0 shadow-sm border border-stone-100 rounded-2xl">
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center mb-4">
+              <Package className="w-8 h-8 text-stone-400" />
             </div>
-            <p className="text-slate-500 text-lg">No hay productos registrados</p>
-            <Button onClick={() => setShowModal(true)} className="mt-4 bg-emerald-500 hover:bg-emerald-600">
+            <p className="text-stone-500 text-lg">No hay productos registrados</p>
+            <Button onClick={() => setShowModal(true)} className="mt-4">
               <Plus className="h-4 w-4 mr-2" /> Agregar primer producto
             </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filtered.map(producto => {
             const catIndex = categorias.findIndex(c => c.id === producto.categoria?.id);
             return (
-              <Card key={producto.id} className={`border-0 shadow-lg shadow-slate-200/50 hover:shadow-xl transition-all ${!producto.activo ? 'opacity-60' : ''}`}>
-                <CardContent className="p-5">
+              <div key={producto.id} className={`border-0 shadow-sm border border-stone-100 rounded-2xl hover:shadow-md transition-all ${!producto.activo ? 'opacity-60' : ''}`}>
+                <div className="p-5">
                   <div className="flex items-start justify-between">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br ${getCatColor(catIndex >= 0 ? catIndex : 0)} from-slate-500 to-slate-600`}>
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${getCatColor(catIndex >= 0 ? catIndex : 0)}`}>
                       <Tag className="w-6 h-6 text-white" />
                     </div>
                     <div className="flex gap-1">
-                      <button onClick={() => openEdit(producto)} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-                        <Edit className="h-4 w-4 text-slate-400" />
+                      <button onClick={() => openEdit(producto)} className="p-2 hover:bg-stone-100 rounded-lg transition-colors">
+                        <Edit className="h-4 w-4 text-stone-400" />
                       </button>
                       <button onClick={() => handleDelete(producto.id)} className="p-2 hover:bg-red-50 rounded-lg transition-colors">
                         <Trash2 className="h-4 w-4 text-red-400" />
@@ -248,10 +253,10 @@ export default function ProductosPage() {
                     </div>
                   </div>
                   <div className="mt-4">
-                    <h3 className="font-semibold text-slate-900 text-lg">{producto.nombre}</h3>
-                    <p className="text-sm text-slate-500">{producto.presentacion}</p>
+                    <h3 className="font-semibold text-stone-900 text-lg">{producto.nombre}</h3>
+                    <p className="text-sm text-stone-500">{producto.presentacion}</p>
                     {producto.categoria && (
-                      <span className="text-xs text-slate-400">{producto.categoria.nombre}</span>
+                      <span className="text-xs text-stone-400">{producto.categoria.nombre}</span>
                     )}
                     {producto.permiteFraccion && (
                       <span className="ml-2 px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full">
@@ -260,7 +265,7 @@ export default function ProductosPage() {
                     )}
                   </div>
                   <div className="mt-4 flex items-center justify-between">
-                    <span className="text-2xl font-bold text-slate-900">$AR {producto.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
+                    <span className="text-2xl font-bold text-stone-900 tabular-nums">$AR {producto.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
                     <button
                       onClick={() => handleToggle(producto.id, !producto.activo)}
                       className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${producto.activo ? 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200' : 'bg-red-100 text-red-600 hover:bg-red-200'}`}
@@ -268,8 +273,8 @@ export default function ProductosPage() {
                       {producto.activo ? 'Activo' : 'Inactivo'}
                     </button>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             );
           })}
         </div>
@@ -278,7 +283,7 @@ export default function ProductosPage() {
       <Modal open={showModal} onClose={() => setShowModal(false)} title={editId ? 'Editar Producto' : 'Nuevo Producto'}>
         <div className="space-y-4">
           <div>
-            <Label className="text-slate-700">Nombre *</Label>
+            <Label className="text-stone-700">Nombre *</Label>
             <Input
               value={form.nombre}
               onChange={e => setForm({ ...form, nombre: e.target.value })}
@@ -287,11 +292,11 @@ export default function ProductosPage() {
             />
           </div>
           <div>
-            <Label className="text-slate-700">Categoría</Label>
+            <Label className="text-stone-700">Categoría</Label>
             <select
               value={form.categoriaId}
               onChange={e => setForm({ ...form, categoriaId: e.target.value })}
-              className="h-12 mt-1 w-full rounded-lg border border-slate-200 px-3"
+              className="h-12 mt-1 w-full rounded-lg border border-stone-200 px-3"
             >
               <option value="">Sin categoría</option>
               {categorias.map(c => (
@@ -300,7 +305,7 @@ export default function ProductosPage() {
             </select>
           </div>
           <div>
-            <Label className="text-slate-700">Presentación *</Label>
+            <Label className="text-stone-700">Presentación *</Label>
             <Input
               value={form.presentacion}
               onChange={e => setForm({ ...form, presentacion: e.target.value })}
@@ -309,7 +314,7 @@ export default function ProductosPage() {
             />
           </div>
           <div>
-            <Label className="text-slate-700">Precio *</Label>
+            <Label className="text-stone-700">Precio *</Label>
             <Input
               type="number"
               step="0.01"
@@ -320,7 +325,7 @@ export default function ProductosPage() {
             />
           </div>
           <div>
-            <Label className="text-slate-700">Código de Barras</Label>
+            <Label className="text-stone-700">Código de Barras</Label>
             <div className="flex gap-2">
               <Input
                 value={form.codigoBarra}
@@ -334,7 +339,7 @@ export default function ProductosPage() {
             </div>
           </div>
           <div>
-            <Label className="text-slate-700">Stock</Label>
+            <Label className="text-stone-700">Stock</Label>
             <Input
               type="number"
               step="0.01"
@@ -344,26 +349,26 @@ export default function ProductosPage() {
               className="h-12 mt-1"
             />
           </div>
-          <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+          <div className="flex items-center gap-3 p-3 bg-stone-50 rounded-lg">
             <input
               type="checkbox"
               id="permiteFraccion"
               checked={form.permiteFraccion}
               onChange={e => setForm({ ...form, permiteFraccion: e.target.checked })}
-              className="w-5 h-5 rounded border-slate-300"
+              className="w-5 h-5 rounded border-stone-300"
             />
             <div className="flex-1">
-              <Label htmlFor="permiteFraccion" className="text-slate-700 font-medium">Venta por fracción</Label>
-              <p className="text-xs text-slate-500">Permite vender por kilos, litros o unidades sueltas</p>
+              <Label htmlFor="permiteFraccion" className="text-stone-700 font-medium">Venta por fracción</Label>
+              <p className="text-xs text-stone-500">Permite vender por kilos, litros o unidades sueltas</p>
             </div>
           </div>
           {form.permiteFraccion && (
             <div>
-              <Label className="text-slate-700">Unidad de Medida</Label>
+              <Label className="text-stone-700">Unidad de Medida</Label>
               <select
                 value={form.unidadMedida}
                 onChange={e => setForm({ ...form, unidadMedida: e.target.value })}
-                className="h-12 mt-1 w-full rounded-lg border border-slate-200 px-3"
+                className="h-12 mt-1 w-full rounded-lg border border-stone-200 px-3"
               >
                 <option value="KG">Kilogramo (KG)</option>
                 <option value="L">Litro (L)</option>
@@ -371,7 +376,7 @@ export default function ProductosPage() {
             </div>
           )}
           <div>
-            <Label className="text-slate-700">Descripción</Label>
+            <Label className="text-stone-700">Descripción</Label>
             <Input
               value={form.descripcion}
               onChange={e => setForm({ ...form, descripcion: e.target.value })}
@@ -381,7 +386,7 @@ export default function ProductosPage() {
           </div>
           <div className="flex justify-end gap-3 pt-4">
             <Button variant="outline" onClick={() => setShowModal(false)} className="h-11">Cancelar</Button>
-            <Button onClick={handleSave} disabled={saving || !form.nombre.trim() || !form.presentacion.trim() || !form.precio} className="h-11 bg-emerald-500 hover:bg-emerald-600">
+            <Button onClick={handleSave} disabled={saving || !form.nombre.trim() || !form.presentacion.trim() || !form.precio} className="h-11">
               {saving ? 'Guardando...' : 'Guardar'}
             </Button>
           </div>
@@ -403,10 +408,10 @@ export default function ProductosPage() {
           </div>
           <div className="max-h-64 overflow-y-auto space-y-2">
             {categorias.length === 0 ? (
-              <p className="text-slate-400 text-center py-4">No hay categorías</p>
+              <p className="text-stone-400 text-center py-4">No hay categorías</p>
             ) : (
               categorias.map((cat, index) => (
-                <div key={cat.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                <div key={cat.id} className="flex items-center justify-between p-3 bg-stone-50 rounded-lg">
                   <div className="flex items-center gap-3">
                     <div className={`w-3 h-3 rounded-full ${getCatColor(index)}`} />
                     <span className="font-medium">{cat.nombre}</span>

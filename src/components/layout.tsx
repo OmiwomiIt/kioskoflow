@@ -37,20 +37,20 @@ function Sidebar({ onClose }: { onClose?: () => void }) {
   const { user, logout } = useAuth();
 
   return (
-    <div className="flex flex-col h-full bg-[#1c1917]">
-      <div className="flex items-center justify-between p-5 border-b border-white/10">
+    <div className="flex flex-col h-full bg-white border-r border-stone-200">
+      <div className="flex items-center justify-between p-6 border-b border-stone-100">
         <Link href="/" className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/20">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-md shadow-orange-500/20">
             <Package className="w-5 h-5 text-white" />
           </div>
-          <span className="text-lg font-bold text-white tracking-tight">KioskoFlow</span>
+          <span className="text-lg font-bold text-stone-900 tracking-tight">KioskoFlow</span>
         </Link>
         {onClose && (
           <button 
             onClick={onClose} 
-            className="lg:hidden p-2 hover:bg-white/10 rounded-xl transition-colors"
+            className="lg:hidden p-2 hover:bg-stone-100 rounded-xl transition-colors"
           >
-            <X className="w-5 h-5 text-white/60" />
+            <X className="w-5 h-5 text-stone-500" />
           </button>
         )}
       </div>
@@ -65,16 +65,16 @@ function Sidebar({ onClose }: { onClose?: () => void }) {
               href={item.href}
               onClick={onClose}
               className={cn(
-                'flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-200',
+                'flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-medium transition-all duration-200',
                 active
-                  ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/25'
-                  : 'text-white/50 hover:bg-white/5 hover:text-white'
+                  ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/25 font-semibold'
+                  : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
               )}
             >
               <Icon className="w-5 h-5" />
               {item.name}
               {active && (
-                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-white/80" />
+                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-white/90" />
               )}
             </Link>
           );
@@ -84,10 +84,10 @@ function Sidebar({ onClose }: { onClose?: () => void }) {
             href="/usuarios"
             onClick={onClose}
             className={cn(
-              'flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-200',
+              'flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-medium transition-all duration-200',
               pathname === '/usuarios'
-                ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/25'
-                : 'text-white/50 hover:bg-white/5 hover:text-white'
+                ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/25 font-semibold'
+                : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
             )}
           >
             <UserCog className="w-5 h-5" />
@@ -96,21 +96,21 @@ function Sidebar({ onClose }: { onClose?: () => void }) {
         )}
       </nav>
 
-      <div className="p-4 border-t border-white/10">
-        <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 mb-3">
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-lg">
+      <div className="p-4 border-t border-stone-100">
+        <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-stone-50 border border-stone-100 mb-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-sm">
             <span className="text-sm font-bold text-white">
               {user?.nombre?.charAt(0).toUpperCase()}
             </span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-white truncate">{user?.nombre}</p>
-            <p className="text-xs text-white/40 truncate">{user?.email}</p>
+            <p className="text-sm font-semibold text-stone-900 truncate">{user?.nombre}</p>
+            <p className="text-xs text-stone-500 truncate">{user?.email}</p>
           </div>
         </div>
         <button
           onClick={logout}
-          className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-white/40 hover:bg-red-500/10 hover:text-red-400 transition-colors"
+          className="flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-sm font-medium text-stone-600 hover:bg-red-50 hover:text-red-600 transition-colors"
         >
           <LogOut className="w-5 h-5" />
           Cerrar sesión

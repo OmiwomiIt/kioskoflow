@@ -38,15 +38,15 @@ export function Modal({ open, onOpenChange, onClose, children, title, className 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="fixed inset-0 bg-black/50" onClick={handleClose} />
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
       <div
         className={cn(
-          'relative z-50 w-full max-w-lg rounded-xl bg-white shadow-lg p-4 sm:p-6 mx-2 sm:mx-4 max-h-[90vh] overflow-y-auto pb-24 lg:pb-6',
+          'relative z-50 w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6 mx-4 max-h-[90vh] overflow-y-auto',
           className
         )}
       >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">{title}</h2>
+          <h2 className="text-xl font-bold text-stone-900">{title}</h2>
           <Button variant="ghost" size="icon" onClick={handleClose}>
             <X className="h-5 w-5" />
           </Button>
